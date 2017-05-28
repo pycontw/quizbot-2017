@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[packages]
+dj-database-url = ">=0.4.2"
+flask = ">=0.12.2"
+psycopg2 = ">=2.7.1"
+python-dotenv = ">=0.6.4"
+pyyaml = ">=3.12"
+
+[dev-packages]
+click = ">=6.7"
+restview = ">=2.7.0"

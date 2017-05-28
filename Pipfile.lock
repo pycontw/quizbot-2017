@@ -1,0 +1,87 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "8c17c3cc25cf4924f35567289dfa80339777898929a5469acb674416d06c0cce"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "click": {
+            "version": "==6.7"
+        },
+        "dj-database-url": {
+            "version": "==0.4.2"
+        },
+        "flask": {
+            "version": "==0.12.2"
+        },
+        "itsdangerous": {
+            "version": "==0.24"
+        },
+        "jinja2": {
+            "version": "==2.9.6"
+        },
+        "markupsafe": {
+            "version": "==1.0"
+        },
+        "psycopg2": {
+            "version": "==2.7.1"
+        },
+        "python-dotenv": {
+            "version": "==0.6.4"
+        },
+        "pyyaml": {
+            "version": "==3.12"
+        },
+        "werkzeug": {
+            "version": "==0.12.2"
+        }
+    },
+    "develop": {
+        "appdirs": {
+            "version": "==1.4.3"
+        },
+        "bleach": {
+            "version": "==2.0.0"
+        },
+        "click": {
+            "version": "==6.7"
+        },
+        "docutils": {
+            "version": "==0.13.1"
+        },
+        "html5lib": {
+            "version": "==0.999999999"
+        },
+        "packaging": {
+            "version": "==16.8"
+        },
+        "pygments": {
+            "version": "==2.2.0"
+        },
+        "pyparsing": {
+            "version": "==2.2.0"
+        },
+        "readme-renderer": {
+            "version": "==17.2"
+        },
+        "restview": {
+            "version": "==2.7.0"
+        },
+        "setuptools": {
+            "version": "==35.0.2"
+        },
+        "six": {
+            "version": "==1.10.0"
+        },
+        "webencodings": {
+            "version": "==0.5.1"
+        }
+    }
+}
