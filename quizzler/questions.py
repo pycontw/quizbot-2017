@@ -16,6 +16,11 @@ class Question:
         self.answer = entry['answer']
         self.wrong_choices = entry['wrong_choices']
 
+    def get_score(self, correctness):
+        if correctness:
+            return 1 + len(self.wrong_choices)
+        return 1
+
 
 def generate_question_in_source(name, f):
     for i, entry in enumerate(yaml.load(f)):
