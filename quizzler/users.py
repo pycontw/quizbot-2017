@@ -121,14 +121,17 @@ def add_user_im(*, serial, im_type, im_id):
     cursor = db.get_cursor()
     cursor.execute(
         """
-        SELECT "serial" FROM "user"
-        WHERE "serial" = %(user_serial)s
+        SELECT EXISTS(
+            SELECT * FROM "user"
+            WHERE "serial" = %(user_serial)s
+        )
         """,
         {
             "user_serial": serial
         }
     )
-    if cursor.fetchone() is None:
+    has_user, = cursor.fetchone()
+    if not has_user:
         cursor.execute(
             """
             INSERT INTO "user" ("serial")
