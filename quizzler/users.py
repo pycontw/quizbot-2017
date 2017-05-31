@@ -121,6 +121,28 @@ def add_user_im(*, serial, im_type, im_id):
     cursor = db.get_cursor()
     cursor.execute(
         """
+        SELECT EXISTS(
+            SELECT * FROM "user"
+            WHERE "serial" = %(user_serial)s
+        )
+        """,
+        {
+            "user_serial": serial
+        }
+    )
+    has_user, = cursor.fetchone()
+    if not has_user:
+        cursor.execute(
+            """
+            INSERT INTO "user" ("serial")
+            VALUES (%(user_serial)s)
+            """,
+            {
+                "user_serial": serial
+            }
+        )
+    cursor.execute(
+        """
         INSERT INTO "user_im" ("user_serial", "im_type", "im_id")
         VALUES (%(user_serial)s, %(im_type)s, %(im_id)s)
         """,
