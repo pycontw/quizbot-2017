@@ -112,12 +112,13 @@ def get_user(*, im_type, im_id):
     return User(serial=serial)
 
 
-def add_user_im(*, serial, im_type, im_id):
-    """Create a new entry for given user serial.
+def add_user_im(*, ticket, serial, im_type, im_id):
+    """Create a new entry for given user serial with given ticket type.
 
     This function assumes an existing IM identification has not been used.
     Returns a `User` under which the identification is registered.
     """
+    serial_with_ticket_type = f'{ticket}-{serial}'
     cursor = db.get_cursor()
     cursor.execute(
         """
@@ -126,7 +127,7 @@ def add_user_im(*, serial, im_type, im_id):
             WHERE "serial" = %(user_serial)s
         )
         """,
-        {'user_serial': serial},
+        {'user_serial': serial_with_ticket_type},
     )
     has_user, = cursor.fetchone()
     if not has_user:
@@ -135,7 +136,7 @@ def add_user_im(*, serial, im_type, im_id):
             INSERT INTO "user" ("serial")
             VALUES (%(user_serial)s)
             """,
-            {'user_serial': serial},
+            {'user_serial': serial_with_ticket_type},
         )
     cursor.execute(
         """
@@ -143,9 +144,9 @@ def add_user_im(*, serial, im_type, im_id):
         VALUES (%(user_serial)s, %(im_type)s, %(im_id)s)
         """,
         {
-            'user_serial': serial,
+            'user_serial': serial_with_ticket_type,
             'im_type': im_type,
             'im_id': im_id,
         },
     )
-    return User(serial=serial)
+    return User(serial=serial_with_ticket_type)
