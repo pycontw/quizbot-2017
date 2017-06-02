@@ -64,6 +64,10 @@ class MigrationRouteHead(MigrationNode):
         pass
 
 
+class MigrationRouteConflict(ValueError):
+    pass
+
+
 def load_migration_nodes():
     nodes = {None: MigrationRouteHead()}
     for path in _migrations_dir_path.iterdir():
@@ -78,6 +82,11 @@ def load_migration_nodes():
             continue
         prev_name = node.module.previous
         prev_node = nodes[prev_name]
+        if prev_node.next is not None:
+            raise MigrationRouteConflict(
+                f'{name} and {prev_node.next.name} '
+                f'both specify previous = {prev_name!r}',
+            )
         prev_node.next = node
         node.prev = prev_node
 
