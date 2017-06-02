@@ -26,6 +26,19 @@ class User:
     def __init__(self, *, serial):
         self.serial = serial
 
+    def get_current_score(self):
+        cursor = db.get_cursor()
+        cursor.execute(
+            """
+            SELECT "score" FROM "user"
+            WHERE "serial" = %(user_serial)s
+            LIMIT 1
+            """,
+            {'user_serial': self.serial},
+        )
+        score, = cursor.fetchone()
+        return score
+
     def get_next_question(self):
         cursor = db.get_cursor()
         cursor.execute(
