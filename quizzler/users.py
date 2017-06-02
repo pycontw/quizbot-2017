@@ -108,7 +108,7 @@ def get_user(*, im_type, im_id):
     row = cursor.fetchone()
     if row is None:
         raise UserDoesNotExist(im_type=im_type, im_id=im_id)
-    serial = row,
+    serial, = row
     return User(serial=serial)
 
 
