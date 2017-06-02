@@ -42,3 +42,12 @@ def generate_question():
 @functools.lru_cache(maxsize=1)
 def get_id_question_pairs():
     return list(generate_question())
+
+
+@functools.lru_cache(maxsize=1)
+def get_question_map():
+    return dict(get_id_question_pairs())
+
+
+def get_question(question_id):
+    return get_question_map()[question_id]
