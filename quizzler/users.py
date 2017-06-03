@@ -129,9 +129,9 @@ def add_user_im(*, serial, im_type, im_id):
     """Create a new entry for given serial.
 
     This function DOES NOT check whether the serial is valid (you must use
-    ``quizzler.registrations.get_info`` to check), and assumes an existing IM
-    identification has not been used. Returns a `User` under which the
-    identification is registered.
+    ``quizzler.registrations.get_registrations`` to check), and assumes an
+    existing IM identification has not been used. Returns a `User` under
+    which the identification is registered.
     """
     cursor = db.get_cursor()
     cursor.execute(
