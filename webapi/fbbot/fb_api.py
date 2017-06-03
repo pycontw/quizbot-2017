@@ -76,6 +76,11 @@ def post_facebook_message(fbid, recevied_message, q=None):
 
     api = MessengerAPI(fbid)
 
+    if recevied_message == "clean":
+        api.send_text_message('清除狀態，雄壯威武！')
+        im.complete_registration_session(im_type='fb', im_id=str(fbid))
+        return 0
+        
     if recevied_message == "not_exist_" + str(fbid):
         data = [
             {
@@ -89,7 +94,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
                 "payload": "exit"
             },
         ]
-        api.sed_template_message(
+        api.send_template_message(
             title="開始註冊",
             image_url=TITLE_IMAGE_URL,
             subtitle="歡迎 PyConTW 2017 大會遊戲",
@@ -136,11 +141,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
             im.complete_registration_session(im_type='fb', im_id=str(fbid))
         else:
             api.send_text_message('不合法的 kktix 序號，請再次輸入')
-        return 0
-
-    if recevied_message == "clean":
-        api.send_text_message('清除狀態，雄壯威武！')
-        im.complete_registration_session(im_type='fb', im_id=str(fbid))
         return 0
 
     if recevied_message == "開始玩":
