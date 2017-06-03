@@ -57,7 +57,7 @@ class User:
                 correct_counts[question_id] += count
             total_counts[question_id] += count
 
-        candidate_pairs = sorted(
+        _, best_question = max(
             questions.get_id_question_pairs(),
             key=functools.partial(
                 question_id_pair_sort_key,
@@ -65,7 +65,6 @@ class User:
                 total_counts=total_counts,
             ),
         )
-        best_id, best_question = candidate_pairs[0]
         return best_question
 
     def save_answer(self, question, correctness):
