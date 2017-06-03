@@ -1,5 +1,6 @@
 import functools
 import os
+import textwrap
 import zipfile
 
 import yaml
@@ -15,6 +16,10 @@ class Question:
         self.message = entry['question']
         self.answer = entry['answer']
         self.wrong_choices = entry['wrong_choices']
+
+    def __repr__(self):
+        message_snippet = textwrap.shorten(self.message, width=30)
+        return f'<Question {self.uid} {message_snippet!r}>'
 
     def get_score(self, correctness):
         if correctness:
@@ -32,7 +37,7 @@ def generate_question_in_source(name, f):
 def generate_question():
     with zipfile.ZipFile(str(ROOT_DIR_PATH.joinpath('sources.zip'))) as zf:
         for name in zf.namelist():
-            stem, ext = os.path.splitext(name)
+            stem, ext = os.path.splitext(os.path.basename(name))
             if ext != '.yml':
                 continue
             with zf.open(name) as f:
