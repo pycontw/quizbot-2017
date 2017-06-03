@@ -125,13 +125,14 @@ def get_user(*, im_type, im_id):
     return User(serial=serial)
 
 
-def add_user_im(*, ticket, serial, im_type, im_id):
-    """Create a new entry for given user serial with given ticket type.
+def add_user_im(*, serial, im_type, im_id):
+    """Create a new entry for given serial.
 
-    This function assumes an existing IM identification has not been used.
-    Returns a `User` under which the identification is registered.
+    This function DOES NOT check whether the serial is valid (you must use
+    ``quizzler.registrations.get_info`` to check), and assumes an existing IM
+    identification has not been used. Returns a `User` under which the
+    identification is registered.
     """
-    serial_with_ticket_type = f'{ticket}-{serial}'
     cursor = db.get_cursor()
     cursor.execute(
         """
@@ -140,7 +141,7 @@ def add_user_im(*, ticket, serial, im_type, im_id):
             WHERE "serial" = %(user_serial)s
         )
         """,
-        {'user_serial': serial_with_ticket_type},
+        {'user_serial': serial},
     )
     has_user, = cursor.fetchone()
     if not has_user:
@@ -149,7 +150,7 @@ def add_user_im(*, ticket, serial, im_type, im_id):
             INSERT INTO "user" ("serial")
             VALUES (%(user_serial)s)
             """,
-            {'user_serial': serial_with_ticket_type},
+            {'user_serial': serial},
         )
     cursor.execute(
         """
@@ -157,9 +158,9 @@ def add_user_im(*, ticket, serial, im_type, im_id):
         VALUES (%(user_serial)s, %(im_type)s, %(im_id)s)
         """,
         {
-            'user_serial': serial_with_ticket_type,
+            'user_serial': serial,
             'im_type': im_type,
             'im_id': im_id,
         },
     )
-    return User(serial=serial_with_ticket_type)
+    return User(serial=serial)
