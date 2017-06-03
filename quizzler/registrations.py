@@ -1,3 +1,4 @@
+import collections
 import csv
 import functools
 import io
@@ -7,7 +8,7 @@ import zipfile
 from .env import ROOT_DIR_PATH
 
 
-__all__ = ['get_registration_info', 'InvalidEmail']
+__all__ = ['get_registrations']
 
 
 def generate_info():
@@ -27,17 +28,12 @@ def generate_info():
 
 @functools.lru_cache(maxsize=1)
 def get_info_map():
-    return {info['聯絡人 Email'].strip(): info for info in generate_info()}
+    info_map = collections.defaultdict(list)
+    for info in generate_info():
+        key = info['聯絡人 Email'].strip()
+        info_map[key].append(info)
+    return info_map
 
 
-class InvalidEmail(ValueError):
-    pass
-
-
-def get_registration_info(*, email):
-    email = email.strip()
-    try:
-        info = get_info_map()[email]
-    except KeyError:
-        raise InvalidEmail(email)
-    return info
+def get_registrations(*, email):
+    return list(get_info_map()[email.strip()])
