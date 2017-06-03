@@ -88,7 +88,7 @@ def get_current_question(*, im_type, im_id):
     if row is None:
         raise CurrentQuestionDoesNotExist(im_type=im_type, im_id=im_id)
     extra, = row
-    question_id, = json.loads(extra)['question_id']
+    question_id = json.loads(extra)['question_id']
     return questions.get_question(question_id)
 
 
