@@ -59,3 +59,9 @@ PyCon Taiwan 2017 猜謎機器人
 本地檢視 RestructuredText 文件::
 
     restview 文件路徑
+
+
+執行 dev web server::
+
+    export DJANGO_SETTINGS_MODULE='webapi.fbbot.settings.local'
+    python webapi/manage.py runserver
