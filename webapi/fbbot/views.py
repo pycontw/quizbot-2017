@@ -35,7 +35,7 @@ class FacebookWebhookView(View):
                             im_type='fb', im_id=str(message['sender']['id'])
                         )
                         logger.debug(question.answer)
-                        if str(reply['payload']) == str(question.answer):
+                        if str(reply['payload']) == str(question.answer).replace(u'\xa0', ' '):
                             correctness = True
                             reply = 'right' + str(message['sender']['id'])
                         else:
@@ -49,9 +49,18 @@ class FacebookWebhookView(View):
                             question=question,
                             correctness=correctness,
                         )
+                        #setting question
+                        question = user.get_next_question()
+                        logger.debug(question.answer)
+                        im.set_current_question(
+                            question=question,
+                            im_type='fb',
+                            im_id=str(message['sender']['id']),
+                        )
                         post_facebook_message(
                             message['sender']['id'],
                             reply,
+                            q=question
                         )
                     try:
                         post_facebook_message(
@@ -63,7 +72,6 @@ class FacebookWebhookView(View):
 
                 if 'postback' in message:
                     logger.debug('postback')
-                    pprint(message)
                     if message['postback']['payload'] == 'register_user':
                         logger.debug('register_user')
                         post_facebook_message(
@@ -87,6 +95,7 @@ class FacebookWebhookView(View):
                                 im_type='fb',
                                 im_id=str(message['sender']['id']),
                             )
+                            #setting question
                             question = user.get_next_question()
                             logger.debug(question.answer)
                             im.set_current_question(

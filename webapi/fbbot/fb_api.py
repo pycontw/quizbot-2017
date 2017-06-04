@@ -59,6 +59,36 @@ TITLE_IMAGE_URL = \
     "https://pbs.twimg.com/profile_images/851073823357059072/dyff_G3a.jpg"
 
 
+def get_question(api, q):
+    choices = copy.copy(q.wrong_choices)
+    choices.append(q.answer)
+    random.shuffle(choices)
+    if '以上皆非' in choices:
+        choices.remove('以上皆非')
+        choices.append('以上皆非')
+    elif '以上皆是' in choices:
+        choices.remove('以上皆是')
+        choices.append('以上皆是')
+    mapping_list = '(A)', '(B)', '(C)', '(D)', '(E)', '(F)'
+    api.send_text_message("題目: {}".format(q.message))
+    question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
+    api.send_text_message('\n'.join(question_list))
+    
+    data = [
+        {
+            "content_type": "text",
+            "title": choice,
+            "payload": choice,
+        }
+        for choice in choices
+    ]
+    api.send_text_message(
+        "答案是？",#q.message,
+        quick_replies=data,
+    )
+    return 0
+
+
 def post_facebook_message(fbid, recevied_message, q=None):
     if q is None:
         q = []
@@ -98,17 +128,18 @@ def post_facebook_message(fbid, recevied_message, q=None):
         return 0
 
     if recevied_message == "exit":
+        im.set_current_question(question=None, im_type='fb', im_id=str(fbid))
         api.send_text_message("真的要離開嗎 >///< 記得要再回來啊～～～～！")
         return 0
 
     # pair
     if recevied_message == "right" + str(fbid):
         api.send_text_message("答對了 ^^ 加油加油！")
-        return 0
-
+        return get_question(api=api, q=q)
+        
     if recevied_message == "wrong" + str(fbid):
         api.send_text_message("答錯了 QQ 再接再厲！")
-        return 0
+        return get_question(api=api, q=q)
 
     # group
     if str(recevied_message).split('*')[0] == "start_regist" + str(fbid):
@@ -117,6 +148,26 @@ def post_facebook_message(fbid, recevied_message, q=None):
             im_type='fb', im_id=str(fbid),
         )
         api.send_text_message('註冊成功!!!可以開始玩囉！')
+        
+        data = [
+            {
+                "type": "postback",
+                "title": "開始玩",
+                "payload": "開始玩"
+            },
+            {
+                "type": "postback",
+                "title": "不玩了",
+                "payload": "exit"
+            }
+        ]
+        api.send_template_message(
+            title="開始遊戲",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="請選擇",
+            data=data,
+        )
+        return 0
 
     if recevied_message == "register_user":
         im.activate_registration_session(im_type='fb', im_id=str(fbid))
@@ -173,49 +224,5 @@ def post_facebook_message(fbid, recevied_message, q=None):
         return 0
 
     if recevied_message == "開始玩":
-        choices = copy.copy(q.wrong_choices)
-        choices.append(q.answer)
-        random.shuffle(choices)
-        print(choices, type(choices))
-        if '以上皆非' in choices:
-            choices.remove('以上皆非').extend('以上皆非')
-        elif '以上皆是' in choices:
-            choices.remove('以上皆是').extend('以上皆是')
+        return get_question(api=api, q=q)
 
-        mapping_list = '(A)', '(B)', '(C)', '(D)', '(E)', '(F)'
-        api.send_text_message("題目: {}".format(q.message))
-        question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
-        api.send_text_message('\n'.join(question_list))
-
-        data = [
-            {
-                "content_type": "text",
-                "title": choice,
-                "payload": choice,
-            }
-            for choice in choices
-        ]
-        api.send_text_message(
-            "答案是？",#q.message,
-            quick_replies=data,
-        )
-        return 0
-
-    data = [
-        {
-            "type": "postback",
-            "title": "開始玩",
-            "payload": "開始玩"
-        },
-        {
-            "type": "postback",
-            "title": "不玩了",
-            "payload": "exit"
-        }
-    ]
-    api.send_template_message(
-        title="開始遊戲",
-        image_url=TITLE_IMAGE_URL,
-        subtitle="請選擇",
-        data=data,
-    )
