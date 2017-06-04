@@ -2,7 +2,7 @@ import collections
 import functools
 import random
 
-from . import db, questions
+from . import db, questions, registrations
 
 
 __all__ = ['get_user', 'UserDoesNotExist']
@@ -184,3 +184,27 @@ def remove_user_im(*, im_type, im_id):
     )
     count = cursor.rowcount
     return count
+
+
+Leader = collections.namedtuple('Leader', 'ranking score user registration')
+
+
+def generate_leaders():
+    """Creates a generator for the leaderboard.
+
+    Generates a 4-tuple containing the ranking, score, user object, and
+    registration information of the leader. The result is a namedtuple.
+    """
+    cursor = db.get_cursor()
+    cursor.execute("""
+        SELECT "serial", "score"
+        FROM "user"
+        ORDER BY "score" DESC
+    """)
+    for ranking, (serial, score) in enumerate(cursor, 1):
+        user = User(serial=serial)
+        registration = registrations.get_registration(serial=serial)
+        yield Leader(
+            ranking=ranking, score=score,
+            user=user, registration=registration,
+        )

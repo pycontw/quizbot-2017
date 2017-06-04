@@ -9,5 +9,5 @@ class CommitDatabaseMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        db.cleanup()
+        db.commit()
         return response
