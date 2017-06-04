@@ -99,11 +99,16 @@ class FacebookWebhookView(View):
                                 message['postback']['payload'],
                                 q=question,
                             )
+                        except users.UserDoesNotExist:
+                            post_facebook_message(
+                                message['sender']['id'],
+                                "not_exist_" + str(message['sender']['id']),
+                            )
                         except Exception as e:
                             logger.debug(" @@ 發生錯誤: {}".format(str(e)))
                             post_facebook_message(
                                 message['sender']['id'],
-                                "not_exist_" + str(message['sender']['id']),
+                                'error' + str(message['sender']['id']),
                             )
         return HttpResponse()
 

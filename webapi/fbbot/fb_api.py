@@ -68,10 +68,14 @@ def post_facebook_message(fbid, recevied_message, q=None):
     api = MessengerAPI(fbid)
 
     if recevied_message == "clean":
-        api.send_text_message('清除狀態，雄壯威武！')
+        api.send_text_message('恭喜啊，清除狀態了！')
         im.complete_registration_session(im_type='fb', im_id=str(fbid))
         return 0
         
+    if recevied_message == "error" + str(fbid):
+        api.send_text_message('好像有錯誤啊 QQ，聯絡一下萬能 TP 主席大大吧！')
+        return 0
+
     if recevied_message == "not_exist_" + str(fbid):
         data = [
             {
@@ -93,6 +97,11 @@ def post_facebook_message(fbid, recevied_message, q=None):
         )
         return 0
 
+    if recevied_message == "exit":
+        api.send_text_message("真的要離開嗎 >///< 記得要再回來啊～～～～！")
+        return 0
+
+    # pair
     if recevied_message == "right" + str(fbid):
         api.send_text_message("答對了 ^^ 加油加油！")
         return 0
@@ -101,22 +110,13 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message("答錯了 QQ 再接再厲！")
         return 0
 
+    # group
     if str(recevied_message).split('*')[0] == "start_regist" + str(fbid):
         users.add_user_im(
             serial=str(recevied_message).split('*')[1],
             im_type='fb', im_id=str(fbid),
         )
         api.send_text_message('註冊成功!!!可以開始玩囉！')
-
-    if recevied_message == "查分數":
-        user = users.get_user(im_type='fb', im_id=str(fbid))
-        score = user.get_current_score()
-        api.send_text_message(f"你目前的分數：{score}")
-        return 0
-
-    if recevied_message == "exit":
-        api.send_text_message("記得要再回來啊～～～～！")
-        return 0
 
     if recevied_message == "register_user":
         im.activate_registration_session(im_type='fb', im_id=str(fbid))
@@ -145,7 +145,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
                         {
                             "type": "postback",
                             "title": '#'+user_info['報名序號']+', '+user_info['聯絡人 姓名'],
-                            "payload": str('@@_'+user_info['報名序號']+"-"+user_info['Id'])
+                            "payload": str('@@_'+user_info['Id'])
                         }
                         for user_info in user_infos
                     ]
@@ -166,12 +166,23 @@ def post_facebook_message(fbid, recevied_message, q=None):
                 api.send_text_message('這個 FB 帳號已經綁定了喔！直接玩吧 yaya！')
         return 0
 
+    if recevied_message == "查分數":
+        user = users.get_user(im_type='fb', im_id=str(fbid))
+        score = user.get_current_score()
+        api.send_text_message(f"你目前的分數：{score}")
+        return 0
+
     if recevied_message == "開始玩":
         choices = copy.copy(q.wrong_choices)
         choices.append(q.answer)
         random.shuffle(choices)
+        print(choices, type(choices))
+        if '以上皆非' in choices:
+            choices.remove('以上皆非').extend('以上皆非')
+        elif '以上皆是' in choices:
+            choices.remove('以上皆是').extend('以上皆是')
 
-        mapping_list = '(A)', '(B)', '(C)', '(D)'
+        mapping_list = '(A)', '(B)', '(C)', '(D)', '(E)', '(F)'
         api.send_text_message("題目: {}".format(q.message))
         question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
         api.send_text_message('\n'.join(question_list))
