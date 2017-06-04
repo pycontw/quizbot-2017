@@ -57,7 +57,7 @@ class User:
                 correct_counts[question_id] += count
             total_counts[question_id] += count
 
-        _, best_question = max(
+        _, best_question = min(
             questions.get_id_question_pairs(),
             key=functools.partial(
                 question_id_pair_sort_key,
