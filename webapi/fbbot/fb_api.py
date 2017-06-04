@@ -1,11 +1,13 @@
 import copy
 import random
+import re
 
 import requests
 
 from django.conf import settings
+from collections import OrderedDict
 
-from quizzler import im, users
+from quizzler import im, users, registrations
 
 
 FACEBOOK_API_ENDPOINT = 'https://graph.facebook.com/v2.6/me/messages'
@@ -57,18 +59,37 @@ TITLE_IMAGE_URL = \
     "https://pbs.twimg.com/profile_images/851073823357059072/dyff_G3a.jpg"
 
 
-def post_facebook_message(fbid, recevied_message, q=None):
-    """
-    Process:
+def get_question(api, q):
+    choices = copy.copy(q.wrong_choices)
+    choices.append(q.answer)
+    random.shuffle(choices)
+    if '以上皆非' in choices:
+        choices.remove('以上皆非')
+        choices.append('以上皆非')
+    elif '以上皆是' in choices:
+        choices.remove('以上皆是')
+        choices.append('以上皆是')
+    mapping_list = '(A)', '(B)', '(C)', '(D)', '(E)', '(F)'
+    api.send_text_message("題目: {}".format(q.message))
+    question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
+    api.send_text_message('\n'.join(question_list))
+    
+    data = [
+        {
+            "content_type": "text",
+            "title": choice,
+            "payload": choice,
+        }
+        for choice in choices
+    ]
+    api.send_text_message(
+        "答案是？",#q.message,
+        quick_replies=data,
+    )
+    return 0
 
-    查詢 id
-    -> 第一次進入遊戲
-    -> 詢問 mail, serial
-    -> 綁定 fb or line id
-    -> 開始遊戲
-    -> 第二次進入遊戲
-    -> 開始遊戲
-    """
+
+def post_facebook_message(fbid, recevied_message, q=None):
     if q is None:
         q = []
     else:
@@ -77,10 +98,14 @@ def post_facebook_message(fbid, recevied_message, q=None):
     api = MessengerAPI(fbid)
 
     if recevied_message == "clean":
-        api.send_text_message('清除狀態，雄壯威武！')
+        api.send_text_message('恭喜啊，清除狀態了！')
         im.complete_registration_session(im_type='fb', im_id=str(fbid))
         return 0
         
+    if recevied_message == "error" + str(fbid):
+        api.send_text_message('好像有錯誤啊 QQ，聯絡一下萬能 TP 主席大大吧！')
+        return 0
+
     if recevied_message == "not_exist_" + str(fbid):
         data = [
             {
@@ -102,12 +127,94 @@ def post_facebook_message(fbid, recevied_message, q=None):
         )
         return 0
 
-    if recevied_message == "right" + str(fbid):
-        api.send_text_message("答對了 ^^ 加油加油！")
+    if recevied_message == "exit":
+        im.set_current_question(question=None, im_type='fb', im_id=str(fbid))
+        api.send_text_message("真的要離開嗎 >///< 記得要再回來啊～～～～！")
         return 0
 
+    # pair
+    if recevied_message == "right" + str(fbid):
+        api.send_text_message("答對了 ^^ 加油加油！")
+        return get_question(api=api, q=q)
+        
     if recevied_message == "wrong" + str(fbid):
         api.send_text_message("答錯了 QQ 再接再厲！")
+        return get_question(api=api, q=q)
+
+    # group
+    if str(recevied_message).split('*')[0] == "start_regist" + str(fbid):
+        users.add_user_im(
+            serial=str(recevied_message).split('*')[1],
+            im_type='fb', im_id=str(fbid),
+        )
+        api.send_text_message('註冊成功!!!可以開始玩囉！')
+        
+        data = [
+            {
+                "type": "postback",
+                "title": "開始玩",
+                "payload": "開始玩"
+            },
+            {
+                "type": "postback",
+                "title": "不玩了",
+                "payload": "exit"
+            }
+        ]
+        api.send_template_message(
+            title="開始遊戲",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="請選擇",
+            data=data,
+        )
+        return 0
+
+    if recevied_message == "register_user":
+        im.activate_registration_session(im_type='fb', im_id=str(fbid))
+        api.send_text_message("請輸入註冊在 kktix 信箱")
+        return 0
+
+    if im.is_registration_session_active(im_type='fb', im_id=str(fbid)):
+        match = re.match(
+            '^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$',
+            str(recevied_message)
+        )
+        if match == None:
+            api.send_text_message('不合法的信箱，請重新輸入')
+        else:
+            im.complete_registration_session(im_type='fb', im_id=str(fbid))
+            # 確定是否有綁定 im_id
+            try:
+                users.get_user(im_type='fb', im_id=str(fbid))
+            except users.UserDoesNotExist:
+                user_infos = registrations.get_registrations(email=str(recevied_message))
+                api.send_text_message('查詢中，請等待...')
+                if user_infos == []:
+                    api.send_text_message('查詢不到 {} 這個郵件, QQ 了，好想和你玩喔！'.format(recevied_message))
+                else:
+                    data = [
+                        {
+                            "type": "postback",
+                            "title": '#'+user_info['報名序號']+', '+user_info['聯絡人 姓名'],
+                            "payload": str('@@_'+user_info['Id'])
+                        }
+                        for user_info in user_infos
+                    ]
+                    data.append(
+                        {
+                            "type": "postback",
+                            "title": '取消',
+                            "payload": 'exit'
+                        }
+                    )
+                    api.send_template_message(
+                        title="請選擇",
+                        image_url=TITLE_IMAGE_URL,
+                        subtitle="選擇綁定資料",
+                        data=data,
+                    )
+            else:
+                api.send_text_message('這個 FB 帳號已經綁定了喔！直接玩吧 yaya！')
         return 0
 
     if recevied_message == "查分數":
@@ -116,67 +223,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message(f"你目前的分數：{score}")
         return 0
 
-    if recevied_message == "exit":
-        api.send_text_message("記得要再回來啊～～～～！")
-        return 0
-
-    if recevied_message == "register_user":
-        im.activate_registration_session(im_type='fb', im_id=str(fbid))
-        api.send_text_message("請輸入註冊在 kktix 電子序號(ex:1)")
-        return 0
-
-    if im.is_registration_session_active(im_type='fb', im_id=fbid):
-        if recevied_message.isdigit():
-            try:
-                user.get_user(im_type='fb', im_id=str(fbid))
-            except users.UserDoesNotExist:
-                users.add_user_im(
-                    ticket='speaker',
-                    serial=str(recevied_message),
-                    im_type='fb', im_id=str(fbid),
-                )
-                api.send_text_message('註冊成功可以開始玩囉！')
-            else:
-                api.send_text_message('已經註冊了')
-            im.complete_registration_session(im_type='fb', im_id=str(fbid))
-        else:
-            api.send_text_message('不合法的 kktix 序號，請再次輸入')
-        return 0
-
     if recevied_message == "開始玩":
-        choices = copy.copy(q.wrong_choices)
-        choices.append(q.answer)
-        random.shuffle(choices)
+        return get_question(api=api, q=q)
 
-        data = [
-            {
-                "content_type": "text",
-                "title": choice,
-                "payload": choice,
-            }
-            for choice in choices
-        ]
-        api.send_text_message(
-            q.message,
-            quick_replies=data,
-        )
-        return 0
-
-    data = [
-        {
-            "type": "postback",
-            "title": "開始玩",
-            "payload": "開始玩"
-        },
-        {
-            "type": "postback",
-            "title": "不玩了",
-            "payload": "exit"
-        }
-    ]
-    api.send_template_message(
-        title="開始遊戲",
-        image_url=TITLE_IMAGE_URL,
-        subtitle="請選擇",
-        data=data,
-    )

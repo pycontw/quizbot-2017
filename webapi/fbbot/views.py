@@ -1,5 +1,6 @@
 import json
 import logging
+from pprint import pprint
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -34,7 +35,7 @@ class FacebookWebhookView(View):
                             im_type='fb', im_id=str(message['sender']['id'])
                         )
                         logger.debug(question.answer)
-                        if str(reply['payload']) == str(question.answer):
+                        if str(reply['payload']) == str(question.answer).replace(u'\xa0', ' '):
                             correctness = True
                             reply = 'right' + str(message['sender']['id'])
                         else:
@@ -48,9 +49,18 @@ class FacebookWebhookView(View):
                             question=question,
                             correctness=correctness,
                         )
+                        #setting question
+                        question = user.get_next_question()
+                        logger.debug(question.answer)
+                        im.set_current_question(
+                            question=question,
+                            im_type='fb',
+                            im_id=str(message['sender']['id']),
+                        )
                         post_facebook_message(
                             message['sender']['id'],
                             reply,
+                            q=question
                         )
                     try:
                         post_facebook_message(
@@ -72,12 +82,20 @@ class FacebookWebhookView(View):
                         post_facebook_message(
                             message['sender']['id'], 'exit'
                         )
-                    else:
-                        user = users.get_user(
-                            im_type='fb',
-                            im_id=str(message['sender']['id']),
+                    elif message['postback']['payload'].split('_')[0] == '@@':
+                        post_facebook_message(
+                            message['sender']['id'],
+                            'start_regist' + str(message['sender']['id'] + 
+                            '*' + message['postback']['payload'].split('_')[1]
+                            )
                         )
+                    else:
                         try:
+                            user = users.get_user(
+                                im_type='fb',
+                                im_id=str(message['sender']['id']),
+                            )
+                            #setting question
                             question = user.get_next_question()
                             logger.debug(question.answer)
                             im.set_current_question(
@@ -90,10 +108,16 @@ class FacebookWebhookView(View):
                                 message['postback']['payload'],
                                 q=question,
                             )
-                        except:
+                        except users.UserDoesNotExist:
                             post_facebook_message(
                                 message['sender']['id'],
                                 "not_exist_" + str(message['sender']['id']),
+                            )
+                        except Exception as e:
+                            logger.debug(" @@ 發生錯誤: {}".format(str(e)))
+                            post_facebook_message(
+                                message['sender']['id'],
+                                'error' + str(message['sender']['id']),
                             )
         return HttpResponse()
 
