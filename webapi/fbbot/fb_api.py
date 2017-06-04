@@ -60,17 +60,6 @@ TITLE_IMAGE_URL = \
 
 
 def post_facebook_message(fbid, recevied_message, q=None):
-    """
-    Process:
-
-    查詢 id
-    -> 第一次進入遊戲
-    -> 詢問 mail, serial
-    -> 綁定 fb or line id
-    -> 開始遊戲
-    -> 第二次進入遊戲
-    -> 開始遊戲
-    """
     if q is None:
         q = []
     else:
