@@ -163,3 +163,24 @@ def add_user_im(*, serial, im_type, im_id):
         },
     )
     return User(serial=serial)
+
+
+def remove_user_im(*, im_type, im_id):
+    """Remove corresponding IM entry.
+
+    This function only disconnect the given IM account to the user, but
+    DOES NOT remove the user itself. Returns the count of entries deleted.
+    """
+    cursor = db.get_cursor()
+    cursor.execute(
+        """
+        DELETE FROM "user_im"
+        WHERE "im_type" = %(im_type)s AND "im_id" = %(im_id)s
+        """,
+        {
+            'im_type': im_type,
+            'im_id': im_id,
+        },
+    )
+    count = cursor.rowcount
+    return count
