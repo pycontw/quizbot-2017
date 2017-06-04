@@ -97,6 +97,55 @@ def post_facebook_message(fbid, recevied_message, q=None):
 
     api = MessengerAPI(fbid)
 
+    if recevied_message == "rm":
+        api.send_text_message('你不要走～你不要走～刪除分數會歸零喔！')
+        data = [
+            {
+                "type": "postback",
+                "title": "確定刪除",
+                "payload": "rmsure"
+            },
+            {
+                "type": "postback",
+                "title": "不要，我想留下來",
+                "payload": "stay"
+            }
+        ]
+        api.send_template_message(
+            title="最後的抉擇",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="請選擇",
+            data=data,
+        )
+        return 0
+        
+    if recevied_message == "rmsure":
+        api.send_text_message('轉眼間，就刪除！')
+        users.remove_user_im(im_type='fb', im_id=str(fbid))
+        return 0
+
+    if recevied_message == "stay":
+        api.send_text_message('決定繼續挑戰！')
+        data = [
+            {
+                "type": "postback",
+                "title": "開始玩",
+                "payload": "開始玩"
+            },
+            {
+                "type": "postback",
+                "title": "不玩了",
+                "payload": "exit"
+            }
+        ]
+        api.send_template_message(
+            title="開始遊戲",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="請選擇",
+            data=data,
+        )
+        return 0
+
     if recevied_message == "clean":
         api.send_text_message('恭喜啊，清除狀態了！')
         im.complete_registration_session(im_type='fb', im_id=str(fbid))
@@ -132,7 +181,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message("真的要離開嗎 >///< 記得要再回來啊～～～～！")
         return 0
 
-    # pair
     if recevied_message == "right" + str(fbid):
         api.send_text_message("答對了 ^^ 加油加油！")
         return get_question(api=api, q=q)
@@ -141,7 +189,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message("答錯了 QQ 再接再厲！")
         return get_question(api=api, q=q)
 
-    # group
     if str(recevied_message).split('*')[0] == "start_regist" + str(fbid):
         users.add_user_im(
             serial=str(recevied_message).split('*')[1],
@@ -225,4 +272,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
 
     if recevied_message == "開始玩":
         return get_question(api=api, q=q)
+
+
 
