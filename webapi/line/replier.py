@@ -23,13 +23,16 @@ from quizzler import registrations
 NICKNAME = 'Nickname (shown on ID card) / 暱稱 (顯示於識別證)'
 SERIAL = '報名序號'
 REGISTER = 'R'
+MENU = 'M'
+
+ROOT_URL = os.environ.get('ROOT_URL')
 
 
 def get_message_for_next_question(user, event):
     question = user.get_next_question()
     im.set_current_question(
         question=question,
-        im_type='LINE',
+        im_type='line',
         im_id=event.source.user_id
     )
 
@@ -54,6 +57,20 @@ def get_message_for_next_question(user, event):
                 columns=columns
             )
         )
+    ]
+
+def make_registered_user_menu():
+    return [
+        PostbackTemplateAction(label='開始遊戲', data=f'{MENU}:start'),
+        PostbackTemplateAction(label='查看目前得分', data=f'{MENU}:score'),
+        URITemplateAction(label='排行榜', uri=f'{ROOT_URL}/leaderboard'),
+        PostbackTemplateAction(label='離開', data=f'{MENU}:leave')
+    ]
+
+def make_unregistered_user_menu():
+    return [
+        PostbackTemplateAction(label='開始註冊', data=f'{MENU}:register'),
+        URITemplateAction(label='排行榜', uri=f'{ROOT_URL}/leaderboard'),
     ]
 
 
@@ -115,9 +132,32 @@ class Replier(object):
                 im_type='line',
                 im_id=self.user_id
             )
-            return TextSendMessage(text=f'註冊完成 {user.serial}')
+            return get_message_for_next_question(user, self.event)
         else:
             return TextSendMessage(text=f'請輸入 email 以進行註冊：')
+
+    def handle_select_answer(self):
+        try:
+            reply = parse('您選擇了：{answer}', self.message)['answer']
+            current_question = im.get_current_question(
+                im_type='line',
+                im_id=self.user_id
+            )
+            is_correct = current_question.answer == reply
+            self.user.save_answer(current_question, is_correct)
+            score = self.user.get_current_score()
+            if current_question.answer == reply:
+                response = TextSendMessage(text=f'答對對啦～目前 {score} 分')
+            else:
+                response = TextSendMessage(
+                    text=f'答錯錯嗚嗚嗚再接再厲！！目前 {score} 分'
+                )
+            return [
+                response,
+                *get_message_for_next_question(self.user, self.event)
+            ]
+        except im.CurrentQuestionDoesNotExist:
+            return TextSendMessage('有人叫你回答嗎= =')
 
     def handle_message(self):
         if im.is_registration_session_active(
@@ -125,8 +165,10 @@ class Replier(object):
             im_id=self.user_id
         ):
             return self.handle_email_registration()
-        elif self.event.message.text == '註冊' and self.user is None:
+        elif self.message == '註冊' and self.user is None:
             return self.handle_begin_registration()
+        elif self.message.startswith('您選擇了：'):
+            return self.handle_select_answer()
 
     def handle_postback(self):
         if im.is_registration_session_active(
