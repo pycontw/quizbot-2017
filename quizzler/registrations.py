@@ -8,7 +8,7 @@ import zipfile
 from .env import ROOT_DIR_PATH
 
 
-__all__ = ['get_registrations']
+__all__ = ['get_registration', 'get_registrations']
 
 
 class Registration:
@@ -18,6 +18,7 @@ class Registration:
         self.row = row
         self.uid = row['Id']
         self.email = row['聯絡人 Email']
+        self.nickname = row['Nickname (shown on ID card) / 暱稱 (顯示於識別證)']
 
     def __repr__(self):
         return f'<Registration {self.uid}>'
@@ -42,13 +43,22 @@ def generate_info():
 
 
 @functools.lru_cache(maxsize=1)
-def get_info_map():
-    info_map = collections.defaultdict(list)
+def get_uid_registration_mapping():
+    return {info.uid: info for info in generate_info()}
+
+
+@functools.lru_cache(maxsize=1)
+def get_email_registration_mapping():
+    registration_mapping = collections.defaultdict(list)
     for info in generate_info():
         key = info.email.strip()
-        info_map[key].append(info)
-    return info_map
+        registration_mapping[key].append(info)
+    return registration_mapping
+
+
+def get_registration(*, serial):
+    return get_uid_registration_mapping()[serial]
 
 
 def get_registrations(*, email):
-    return list(get_info_map()[email.strip()])
+    return list(get_email_registration_mapping()[email.strip()])

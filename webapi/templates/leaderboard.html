@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>排行榜</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+<link rel="stylesheet" href="https://cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+<link rel="stylesheet" href="https://cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+	<table>
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>分數</th>
+				<th>名稱</th>
+				<th>序號</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for leader in leader_gen %}
+			<tr>
+				<th>{{ leader.ranking }}</th>
+				<td>{{ leader.score }}</td>
+				<td>{{ leader.registration.nickname }}</td>
+				<td>{{ leader.user.serial }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+
+</body>
+
+</html>
