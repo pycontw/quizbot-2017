@@ -141,11 +141,12 @@ def post_facebook_message(fbid, recevied_message, q=None):
                 if user_infos == []:
                     api.send_text_message('查詢不到 {} 這個郵件, QQ 了，好想和你玩喔！'.format(recevied_message))
                 else:
+                    print(user_infos)
                     data = [
                         {
                             "type": "postback",
                             "title": '#'+user_info['報名序號']+', '+user_info['聯絡人 姓名'],
-                            "payload": str('@@_'+user_info['報名序號']+"-"+user_info['聯絡人 姓名'])
+                            "payload": str('@@_'+user_info['報名序號']+"-"+user_info['Id'])
                         }
                         for user_info in user_infos
                     ]
@@ -164,6 +165,10 @@ def post_facebook_message(fbid, recevied_message, q=None):
         choices.append(q.answer)
         random.shuffle(choices)
 
+        api.send_text_message("題目: {}".format(q.message))
+        for i in range(0, len(choices)):
+            api.send_text_message("{}: {}".format(i, choices[i]))
+
         data = [
             {
                 "content_type": "text",
@@ -173,7 +178,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
             for choice in choices
         ]
         api.send_text_message(
-            q.message,
+            "答案是？",#q.message,
             quick_replies=data,
         )
         return 0
