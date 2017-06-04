@@ -2,7 +2,7 @@
 PyCon Taiwan 2017 猜謎機器人
 ============================
 
-詳細規劃見 `spec/README.rst`。
+詳細規劃見 `spec/README.rst <./spec/README.rst>`_。
 
 
 專案設定
