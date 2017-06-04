@@ -1,8 +1,10 @@
+import os
 from flask import Flask, request, abort
+from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, PostbackEvent
 
-from .line import line_webhook_handler
+from .line import Replier
 
 from quizzler import db
 

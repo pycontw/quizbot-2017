@@ -1,7 +1,6 @@
 import os
 import random
 from parse import parse
-from linebot import LineBotApi, WebhookHandler
 from linebot.models import (
     MessageEvent,
     TextMessage,
@@ -126,7 +125,7 @@ class Replier(object):
             im_id=self.user_id
         ):
             return self.handle_email_registration()
-        elif event.message.text == '註冊' and self.user is None:
+        elif self.event.message.text == '註冊' and self.user is None:
             return self.handle_begin_registration()
 
     def handle_postback(self):
