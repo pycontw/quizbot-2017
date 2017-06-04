@@ -98,7 +98,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
     api = MessengerAPI(fbid)
 
     if recevied_message == "rm":
-        api.send_text_message('你不要走～你不要走～刪除分數會歸零喔！')
+        api.send_text_message('你不要走～你不要走～但如果反悔了，重新註冊分數還在喔！')
         data = [
             {
                 "type": "postback",
