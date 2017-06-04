@@ -1,5 +1,6 @@
 import json
 import logging
+from pprint import pprint
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -62,6 +63,7 @@ class FacebookWebhookView(View):
 
                 if 'postback' in message:
                     logger.debug('postback')
+                    pprint(message)
                     if message['postback']['payload'] == 'register_user':
                         logger.debug('register_user')
                         post_facebook_message(
@@ -97,7 +99,8 @@ class FacebookWebhookView(View):
                                 message['postback']['payload'],
                                 q=question,
                             )
-                        except:
+                        except Exception as e:
+                            logger.debug(" @@ 發生錯誤: {}".format(str(e)))
                             post_facebook_message(
                                 message['sender']['id'],
                                 "not_exist_" + str(message['sender']['id']),

@@ -149,6 +149,13 @@ def post_facebook_message(fbid, recevied_message, q=None):
                         }
                         for user_info in user_infos
                     ]
+                    data.append(
+                        {
+                            "type": "postback",
+                            "title": '取消',
+                            "payload": 'exit'
+                        }
+                    )
                     api.send_template_message(
                         title="請選擇",
                         image_url=TITLE_IMAGE_URL,
@@ -164,9 +171,10 @@ def post_facebook_message(fbid, recevied_message, q=None):
         choices.append(q.answer)
         random.shuffle(choices)
 
+        mapping_list = '(A)', '(B)', '(C)', '(D)'
         api.send_text_message("題目: {}".format(q.message))
-        for i in range(0, len(choices)):
-            api.send_text_message("{}: {}".format(i, choices[i]))
+        question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
+        api.send_text_message('\n'.join(question_list))
 
         data = [
             {
