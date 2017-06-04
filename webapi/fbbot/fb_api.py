@@ -123,7 +123,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message("請輸入註冊在 kktix 信箱")
         return 0
 
-    if im.is_registration_session_active(im_type='fb', im_id=fbid):
+    if im.is_registration_session_active(im_type='fb', im_id=str(fbid)):
         match = re.match(
             '^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$',
             str(recevied_message)
@@ -141,7 +141,6 @@ def post_facebook_message(fbid, recevied_message, q=None):
                 if user_infos == []:
                     api.send_text_message('查詢不到 {} 這個郵件, QQ 了，好想和你玩喔！'.format(recevied_message))
                 else:
-                    print(user_infos)
                     data = [
                         {
                             "type": "postback",
