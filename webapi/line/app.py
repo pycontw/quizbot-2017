@@ -1,10 +1,10 @@
 import os
-from flask import Flask, request, abort
+from flask import request
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, PostbackEvent
 
-from .line import Replier
+from .replier import Replier
 
 from quizzler import db
 
@@ -31,21 +31,19 @@ def handle_postback(event):
 
 
 # INIT FLASK APP
-app = Flask(__name__)
+def configure_linebot_app(app):
 
+    @app.after_request
+    def commit_database(response):
+        db.commit()
+        return response
 
-@app.after_request
-def commit_database(response):
-    db.commit()
-    return response
-
-
-@app.route("/api/line_webhook", methods=["POST"])
-def line_webhook():
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-    try:
-        line_webhook_handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
-    return "OK"
+    @app.route("/api/line_webhook", methods=["POST"])
+    def line_webhook():
+        signature = request.headers['X-Line-Signature']
+        body = request.get_data(as_text=True)
+        try:
+            line_webhook_handler.handle(body, signature)
+        except InvalidSignatureError:
+            abort(400)
+        return "OK"
