@@ -26,8 +26,16 @@ _conn = None
 
 
 def cleanup():
-    _conn.commit()
-    _conn.close()
+    global _conn
+    if _conn is not None:
+        _conn.commit()
+        _conn.close()
+        _conn = None
+
+
+def commit():
+    if _conn is not None:
+        _conn.commit()
 
 
 def get_cursor():

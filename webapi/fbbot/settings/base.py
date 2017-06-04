@@ -33,6 +33,7 @@ INSTALLED_APPS = []
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'fbbot.middlewares.CommitDatabaseMiddleware',
 ]
 
 ROOT_URLCONF = 'webapi.fbbot.urls'
