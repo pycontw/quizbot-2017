@@ -2,7 +2,7 @@
 PyCon Taiwan 2017 猜謎機器人
 ============================
 
-詳細規劃見 `spec.rst`。
+詳細規劃見 `spec/README.rst`。
 
 
 專案設定
@@ -20,11 +20,11 @@ PyCon Taiwan 2017 猜謎機器人
 
 註：專案根目錄即本檔案所在目錄。
 
-1. 取得題目檔 ``sources.zip`` 與註冊資料 ``tickets.zip``，放在專案根目錄內（不需解壓縮）。
+1. 取得題目檔 `sources.zip` 與註冊資料 `tickets.zip`，放在專案根目錄內（不需解壓縮）。
 
-2. 在根目錄建立 ``.env`` 檔案，用來指定專案環境變數。檔案格式類似一般用來 source 的 Bash 檔，使用 `python-dotenv`_ 管理，參見文檔了解可用格式。
+2. 在根目錄建立 `.env` 檔案，用來指定專案環境變數。檔案格式類似一般用來 source 的 Bash 檔，使用 `python-dotenv`_ 管理，參見文檔了解可用格式。
 
-3. 在 ``.env`` 檔案中寫入需要的環境變數：
+3. 在 `.env` 檔案中寫入需要的環境變數：
     * ``DATABASE_URL`` 指定資料庫路徑。資料庫路徑資訊由 `dj-database-url`_ 管理，參見文檔了解可用參數。
     * ``DJANGO_SECRET_KEY`` 指定 Django 需要的 secret key。
     * ``DJANGO_SETTINGS_MODULE`` 指定 Django 的設定檔路徑。本地端應設定成 ``webapi.fbbot.settings.local``。
