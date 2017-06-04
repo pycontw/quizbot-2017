@@ -28,7 +28,6 @@ _conn = None
 def cleanup():
     global _conn
     if _conn is not None:
-        _conn.commit()
         _conn.close()
         _conn = None
 

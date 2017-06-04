@@ -147,3 +147,4 @@ def main(target):
 if __name__ == '__main__':
     init_system()
     main()
+    db.commit()     # If everything ends well, save it.
