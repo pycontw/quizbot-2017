@@ -146,6 +146,10 @@ def post_facebook_message(fbid, recevied_message, q=None):
         )
         return 0
 
+    if recevied_message == 'leaderboard':
+        api.send_text_message('{}'.format(users.generate_leaders()))
+        return 0
+
     if recevied_message == "clean":
         api.send_text_message('恭喜啊，清除狀態了！')
         im.complete_registration_session(im_type='fb', im_id=str(fbid))
@@ -243,7 +247,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
                         {
                             "type": "postback",
                             "title": '#'+user_info['報名序號']+', '+user_info['聯絡人 姓名'],
-                            "payload": str('@@_'+user_info['Id'])
+                            "payload": str('@@_'+user_info.uid)
                         }
                         for user_info in user_infos
                     ]
