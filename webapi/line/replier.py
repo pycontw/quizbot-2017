@@ -94,6 +94,15 @@ class Replier(object):
     def call(self, function, **kwargs):
         return function(im_type='line', im_id=self.user_id, **kwargs)
 
+    @property
+    def current_question(self):
+        if not hasattr(self, '_current_question'):
+            try:
+                self._current_question = self.call(im.get_current_question)
+            except im.CurrentQuestionDoesNotExist:
+                self._current_question = None
+        return self._current_question
+
     def ask_next_question(self):
         question = self.user.get_next_question()
         self.call(im.set_current_question, question=question)
@@ -137,34 +146,48 @@ class Replier(object):
         if kktix_id != 'CANCEL':
             user = self.call(users.add_user_im, serial=kktix_id)
             self.call(complete_registration_session)
-            return self.ask_next_question()
+            return [
+                TextSendMessage(text='註冊成功！開始玩吧～'),
+                *self.ask_next_question()
+            ]
         else:
             return TextSendMessage(text=f'請輸入 email 以進行註冊：')
 
     def handle_select_answer(self):
-        try:
-            reply = parse('您選擇了：{answer}', self.message)['answer']
-            current_question = self.call(im.get_current_question)
-            is_correct = current_question.answer == reply
-            self.user.save_answer(current_question, is_correct)
-            score = self.user.get_current_score()
-            if current_question.answer == reply:
-                response = TextSendMessage(text=f'答對對啦～目前 {score} 分')
-            else:
-                response = TextSendMessage(
-                    text=f'答錯錯嗚嗚嗚再接再厲！！目前 {score} 分'
-                )
-            return [response, *self.ask_next_question()]
-        except im.CurrentQuestionDoesNotExist:
-            return TextSendMessage('有人叫你回答嗎= =')
+        reply = parse('您選擇了：{answer}', self.message)['answer']
+        is_correct = self.current_question.answer == reply
+        self.user.save_answer(self.current_question, is_correct)
+        score = self.user.get_current_score()
+        if self.current_question.answer == reply:
+            response = TextSendMessage(text=f'答對對啦～目前 {score} 分')
+        else:
+            response = TextSendMessage(
+                text=f'答錯錯嗚嗚嗚再接再厲！！目前 {score} 分'
+            )
+        return [response, *self.ask_next_question()]
+
+    def handle_start_game(self):
+        if self.current_question is not None:
+            return TextSendMessage(text='遊戲已經在進行中～')
+        else:
+            return self.ask_next_question()
+
+    def handle_pause_game(self):
+        self.call(im.set_current_question, question=None)
+        return TextSendMessage(text='狀態已清除！按「玩遊戲」以重新開始～')
 
     def handle_message(self):
         if self.call(im.is_registration_session_active):
             return self.handle_email_registration()
         elif self.message == '註冊' and self.user is None:
             return self.handle_begin_registration()
-        elif self.message.startswith('您選擇了：'):
+        elif self.message.startswith('您選擇了：') and \
+                self.current_question is not None:
             return self.handle_select_answer()
+        elif self.message == '玩遊戲':
+            return self.handle_start_game()
+        elif self.message == '不玩了':
+            return self.handle_pause_game()
 
     def handle_postback(self):
         if self.call(im.is_registration_session_active):
