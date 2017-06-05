@@ -199,6 +199,23 @@ class Replier(object):
             text=f'你目前的分數是：{self.user.get_current_score()} 分'
         )
 
+    def handle_unbind(self):
+        return TemplateSendMessage(
+            alt_text='確定解除綁定？',
+            template=ConfirmTemplate(
+                text='真的要走嗎 QQ ～如果要再回來的話，重新註冊分數還會在喔！',
+                actions=[
+                    PostbackTemplateAction(label='確認', data='CONFIRM_DELETE'),
+                    PostbackTemplateAction(label='取消', data='CANCEL_DELETE'),
+                ]
+            )
+        )
+
+    def handle_confirm_unbind(self):
+        self.call(users.remove_user_im)
+        return TextSendMessage(text='解除完成，再次按下或輸入「開始註冊」'
+                                    '就可以再次玩遊戲喔～等你 >////<')
+
     def handle_message(self):
         if self.user is None:
             if self.call(im.is_registration_session_active):
@@ -216,9 +233,15 @@ class Replier(object):
                 return self.handle_pause_game()
             elif self.message == '查分數':
                 return self.handle_lookup_score()
+            elif self.message == '解除綁定':
+                return self.handle_unbind()
 
     def handle_postback(self):
         if self.call(im.is_registration_session_active):
             return self.handle_select_identity()
         elif self.postback == 'NOREGISTER':
             return TextSendMessage(text='等你喔 >/////<')
+        elif self.postback == 'CONFIRM_DELETE':
+            return self.handle_confirm_unbind()
+        elif self.postback == 'CANCEL_DELETE':
+            return TextSendMessage(text='留下來了耶耶耶！')
