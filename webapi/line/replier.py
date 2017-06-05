@@ -38,26 +38,45 @@ def get_message_for_next_question(user, event):
 
     choices = [question.answer, *question.wrong_choices]
     random.shuffle(choices)
-    columns = [
-        CarouselColumn(
-            title=f'選項 {i}',
-            text=choice[:60],
-            actions=[
-                MessageTemplateAction(label='選擇', text=f'您選擇了：{choice}')
+    choices = [*filter(lambda s: '皆' not in s, choices),
+               *filter(lambda s: '皆' in s, choices)]
+
+    if len(choices) > 4 or any(len(s) > 20 for s in choices):
+        template = CarouselTemplate(
+            columns=[
+                CarouselColumn(
+                    title=f'選項 {option}',
+                    text=choice[:60],
+                    actions=[
+                        MessageTemplateAction(
+                            label='選擇',
+                            text=f'您選擇了：{choice}'
+                        )
+                    ]
+                )
+                for option, choice in zip('ABCDE', choices) if choice != ''
             ]
         )
-        for i, choice in enumerate(choices, 1)
-    ]
-
-    return [
-        TextSendMessage(text=f'Q: {question.message}'),
-        TemplateSendMessage(
-            alt_text='Select answer',
-            template=CarouselTemplate(
-                columns=columns
-            )
+        return [
+            TextSendMessage(text=f'Q: {question.message}'),
+            TemplateSendMessage(alt_text='Select answer', template=template)
+        ]
+    else:
+        template = ButtonsTemplate(
+            title='請作答：',
+            text=f'Q: {question.message}',
+            actions=[
+                MessageTemplateAction(
+                    label=choice,
+                    text=f'您選擇了：{choice}',
+                )
+                for choice in choices if choice != ''
+            ]
         )
-    ]
+        return [
+            TemplateSendMessage(alt_text='Select answer', template=template)
+        ]
+
 
 def make_registered_user_menu():
     return [
