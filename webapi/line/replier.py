@@ -12,6 +12,7 @@ from linebot.models import (
     PostbackEvent,
     CarouselTemplate,
     CarouselColumn,
+    ConfirmTemplate,
 )
 
 from quizzler import users
@@ -41,7 +42,7 @@ def generate_message_for_question(question):
                 text=choice[:60],
                 actions=[MessageTemplateAction(
                     label='選擇',
-                    text=f'您選擇了：{choice}')]
+                    text=f'答案：{choice}')]
             ) for option, choice in zip('ABCDE', choices) if choice != '']
         )
         return [
@@ -53,7 +54,7 @@ def generate_message_for_question(question):
             title='請作答：',
             text=f'Q: {question.message}',
             actions=[
-                MessageTemplateAction(label=choice, text=f'您選擇了：{choice}')
+                MessageTemplateAction(label=choice, text=f'答案：{choice}')
                 for choice in choices if choice != ''
             ]
         )
@@ -129,7 +130,7 @@ class Replier(object):
             return TemplateSendMessage(
                 alt_text='選擇身份',
                 template=ButtonsTemplate(
-                    title='你是下面其中一個嗎？',
+                    title='你是下面其中一位嗎？',
                     text='若不是，請選擇「取消」並重新輸入正確的 email',
                     actions=[
                         *identity_selections,
@@ -144,8 +145,8 @@ class Replier(object):
     def handle_select_identity(self):
         kktix_id = parse(f'{REGISTER}:{{kktix_id}}', self.postback)['kktix_id']
         if kktix_id != 'CANCEL':
-            user = self.call(users.add_user_im, serial=kktix_id)
-            self.call(complete_registration_session)
+            self.user = self.call(users.add_user_im, serial=kktix_id)
+            self.call(im.complete_registration_session)
             return [
                 TextSendMessage(text='註冊成功！開始玩吧～'),
                 *self.ask_next_question()
@@ -154,7 +155,10 @@ class Replier(object):
             return TextSendMessage(text=f'請輸入 email 以進行註冊：')
 
     def handle_select_answer(self):
-        reply = parse('您選擇了：{answer}', self.message)['answer']
+        if self.current_question is None:
+            return TextSendMessage(text='目前沒有進行中的題目喔～'
+                                        '請輸入或按下「玩遊戲」來開始答題！')
+        reply = parse('答案：{answer}', self.message)['answer']
         is_correct = self.current_question.answer == reply
         self.user.save_answer(self.current_question, is_correct)
         score = self.user.get_current_score()
@@ -174,21 +178,40 @@ class Replier(object):
 
     def handle_pause_game(self):
         self.call(im.set_current_question, question=None)
-        return TextSendMessage(text='狀態已清除！按「玩遊戲」以重新開始～')
+        return TextSendMessage(
+            text='狀態已清除！按「玩遊戲」以繼續玩遊戲計分～'
+        )
+
+    def ask_for_registration(self):
+        return TemplateSendMessage(
+            alt_text='註冊之後就可以開始玩囉！',
+            template=ConfirmTemplate(
+                text='註冊之後就可以開始玩囉！',
+                actions=[
+                    MessageTemplateAction(label='開始註冊', text='開始註冊'),
+                    PostbackTemplateAction(label='取消', data='NOREGISTER'),
+                ]
+            )
+        )
 
     def handle_message(self):
-        if self.call(im.is_registration_session_active):
-            return self.handle_email_registration()
-        elif self.message == '註冊' and self.user is None:
-            return self.handle_begin_registration()
-        elif self.message.startswith('您選擇了：') and \
-                self.current_question is not None:
-            return self.handle_select_answer()
-        elif self.message == '玩遊戲':
-            return self.handle_start_game()
-        elif self.message == '不玩了':
-            return self.handle_pause_game()
+        if self.user is None:
+            if self.call(im.is_registration_session_active):
+                return self.handle_email_registration()
+            elif self.message == '開始註冊' and self.user is None:
+                return self.handle_begin_registration()
+            else:
+                return self.ask_for_registration()
+        else:
+            if self.message.startswith('答案：'):
+                return self.handle_select_answer()
+            elif self.message == '玩遊戲':
+                return self.handle_start_game()
+            elif self.message == '不玩了':
+                return self.handle_pause_game()
 
     def handle_postback(self):
         if self.call(im.is_registration_session_active):
             return self.handle_select_identity()
+        elif self.postback == 'NOREGISTER':
+            return TextSendMessage(text='等你喔 >/////<')
