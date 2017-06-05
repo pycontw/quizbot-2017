@@ -28,14 +28,7 @@ MENU = 'M'
 ROOT_URL = os.environ.get('ROOT_URL')
 
 
-def get_message_for_next_question(user, event):
-    question = user.get_next_question()
-    im.set_current_question(
-        question=question,
-        im_type='line',
-        im_id=event.source.user_id
-    )
-
+def generate_message_for_question(question):
     choices = [question.answer, *question.wrong_choices]
     random.shuffle(choices)
     choices = [*filter(lambda s: '皆' not in s, choices),
@@ -43,19 +36,13 @@ def get_message_for_next_question(user, event):
 
     if len(choices) > 4 or any(len(s) > 20 for s in choices):
         template = CarouselTemplate(
-            columns=[
-                CarouselColumn(
-                    title=f'選項 {option}',
-                    text=choice[:60],
-                    actions=[
-                        MessageTemplateAction(
-                            label='選擇',
-                            text=f'您選擇了：{choice}'
-                        )
-                    ]
-                )
-                for option, choice in zip('ABCDE', choices) if choice != ''
-            ]
+            columns=[CarouselColumn(
+                title=f'選項 {option}',
+                text=choice[:60],
+                actions=[MessageTemplateAction(
+                    label='選擇',
+                    text=f'您選擇了：{choice}')]
+            ) for option, choice in zip('ABCDE', choices) if choice != '']
         )
         return [
             TextSendMessage(text=f'Q: {question.message}'),
@@ -66,10 +53,7 @@ def get_message_for_next_question(user, event):
             title='請作答：',
             text=f'Q: {question.message}',
             actions=[
-                MessageTemplateAction(
-                    label=choice,
-                    text=f'您選擇了：{choice}',
-                )
+                MessageTemplateAction(label=choice, text=f'您選擇了：{choice}')
                 for choice in choices if choice != ''
             ]
         )
@@ -86,6 +70,7 @@ def make_registered_user_menu():
         PostbackTemplateAction(label='離開', data=f'{MENU}:leave')
     ]
 
+
 def make_unregistered_user_menu():
     return [
         PostbackTemplateAction(label='開始註冊', data=f'{MENU}:register'),
@@ -98,7 +83,7 @@ class Replier(object):
         self.event = event
         self.user_id = event.source.user_id
         try:
-            self.user = users.get_user(im_type='line', im_id=self.user_id)
+            self.user = self.call(users.get_user)
         except users.UserDoesNotExist:
             self.user = None
         if event.type == 'message':
@@ -106,8 +91,16 @@ class Replier(object):
         elif event.type == 'postback':
             self.postback = event.postback.data
 
+    def call(self, function, **kwargs):
+        return function(im_type='line', im_id=self.user_id, **kwargs)
+
+    def ask_next_question(self):
+        question = self.user.get_next_question()
+        self.call(im.set_current_question, question=question)
+        return generate_message_for_question(question)
+
     def handle_begin_registration(self):
-        im.activate_registration_session(im_type='line', im_id=self.user_id)
+        self.call(im.activate_registration_session)
         return TextSendMessage(text='請輸入註冊的電子郵件')
 
     def handle_email_registration(self):
@@ -142,26 +135,16 @@ class Replier(object):
     def handle_select_identity(self):
         kktix_id = parse(f'{REGISTER}:{{kktix_id}}', self.postback)['kktix_id']
         if kktix_id != 'CANCEL':
-            user = users.add_user_im(
-                serial=kktix_id,
-                im_type='line',
-                im_id=self.user_id
-            )
-            im.complete_registration_session(
-                im_type='line',
-                im_id=self.user_id
-            )
-            return get_message_for_next_question(user, self.event)
+            user = self.call(users.add_user_im, serial=kktix_id)
+            self.call(complete_registration_session)
+            return self.ask_next_question()
         else:
             return TextSendMessage(text=f'請輸入 email 以進行註冊：')
 
     def handle_select_answer(self):
         try:
             reply = parse('您選擇了：{answer}', self.message)['answer']
-            current_question = im.get_current_question(
-                im_type='line',
-                im_id=self.user_id
-            )
+            current_question = self.call(im.get_current_question)
             is_correct = current_question.answer == reply
             self.user.save_answer(current_question, is_correct)
             score = self.user.get_current_score()
@@ -171,18 +154,12 @@ class Replier(object):
                 response = TextSendMessage(
                     text=f'答錯錯嗚嗚嗚再接再厲！！目前 {score} 分'
                 )
-            return [
-                response,
-                *get_message_for_next_question(self.user, self.event)
-            ]
+            return [response, *self.ask_next_question()]
         except im.CurrentQuestionDoesNotExist:
             return TextSendMessage('有人叫你回答嗎= =')
 
     def handle_message(self):
-        if im.is_registration_session_active(
-            im_type='line',
-            im_id=self.user_id
-        ):
+        if self.call(im.is_registration_session_active):
             return self.handle_email_registration()
         elif self.message == '註冊' and self.user is None:
             return self.handle_begin_registration()
@@ -190,8 +167,5 @@ class Replier(object):
             return self.handle_select_answer()
 
     def handle_postback(self):
-        if im.is_registration_session_active(
-            im_type='line',
-            im_id=self.user_id
-        ):
+        if self.call(im.is_registration_session_active):
             return self.handle_select_identity()
