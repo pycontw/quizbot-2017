@@ -1,22 +1,17 @@
-import os
 import random
 from parse import parse
 from linebot.models import (
-    MessageEvent,
-    TextMessage,
     TextSendMessage,
     TemplateSendMessage,
     ButtonsTemplate,
     PostbackTemplateAction,
     MessageTemplateAction,
-    PostbackEvent,
     CarouselTemplate,
     CarouselColumn,
     ConfirmTemplate,
 )
 
 from quizzler import users
-from quizzler import questions
 from quizzler import im
 from quizzler import registrations
 
@@ -24,9 +19,6 @@ from quizzler import registrations
 NICKNAME = 'Nickname (shown on ID card) / 暱稱 (顯示於識別證)'
 SERIAL = '報名序號'
 REGISTER = 'R'
-MENU = 'M'
-
-ROOT_URL = os.environ.get('ROOT_URL')
 
 
 def generate_message_for_question(question):
@@ -47,7 +39,7 @@ def generate_message_for_question(question):
         )
         return [
             TextSendMessage(text=f'Q: {question.message}'),
-            TemplateSendMessage(alt_text='Select answer', template=template)
+            TemplateSendMessage(alt_text='請作答：', template=template)
         ]
     else:
         template = ButtonsTemplate(
@@ -59,24 +51,8 @@ def generate_message_for_question(question):
             ]
         )
         return [
-            TemplateSendMessage(alt_text='Select answer', template=template)
+            TemplateSendMessage(alt_text='請作答：', template=template)
         ]
-
-
-def make_registered_user_menu():
-    return [
-        PostbackTemplateAction(label='開始遊戲', data=f'{MENU}:start'),
-        PostbackTemplateAction(label='查看目前得分', data=f'{MENU}:score'),
-        URITemplateAction(label='排行榜', uri=f'{ROOT_URL}/leaderboard'),
-        PostbackTemplateAction(label='離開', data=f'{MENU}:leave')
-    ]
-
-
-def make_unregistered_user_menu():
-    return [
-        PostbackTemplateAction(label='開始註冊', data=f'{MENU}:register'),
-        URITemplateAction(label='排行榜', uri=f'{ROOT_URL}/leaderboard'),
-    ]
 
 
 class Replier(object):
@@ -91,6 +67,36 @@ class Replier(object):
             self.message = event.message.text.strip()
         elif event.type == 'postback':
             self.postback = event.postback.data
+
+    def handle_message(self):
+        if self.user is None:
+            if self.call(im.is_registration_session_active):
+                return self.handle_email_registration()
+            elif self.message == '開始註冊' and self.user is None:
+                return self.handle_begin_registration()
+            else:
+                return self.ask_for_registration()
+        else:
+            if self.message.startswith('答案：'):
+                return self.handle_select_answer()
+            elif self.message == '玩遊戲':
+                return self.handle_start_game()
+            elif self.message == '不玩了':
+                return self.handle_pause_game()
+            elif self.message == '查分數':
+                return self.handle_lookup_score()
+            elif self.message == '解除綁定':
+                return self.handle_unbind()
+
+    def handle_postback(self):
+        if self.call(im.is_registration_session_active):
+            return self.handle_select_identity()
+        elif self.postback == 'NOREGISTER':
+            return TextSendMessage(text='等你喔 >/////<')
+        elif self.postback == 'CONFIRM_DELETE':
+            return self.handle_confirm_unbind()
+        elif self.postback == 'CANCEL_DELETE':
+            return TextSendMessage(text='留下來了耶耶耶！')
 
     def call(self, function, **kwargs):
         return function(im_type='line', im_id=self.user_id, **kwargs)
@@ -108,6 +114,18 @@ class Replier(object):
         question = self.user.get_next_question()
         self.call(im.set_current_question, question=question)
         return generate_message_for_question(question)
+
+    def ask_for_registration(self):
+        return TemplateSendMessage(
+            alt_text='註冊之後就可以開始玩囉！',
+            template=ConfirmTemplate(
+                text='註冊之後就可以開始玩囉！',
+                actions=[
+                    MessageTemplateAction(label='開始註冊', text='開始註冊'),
+                    PostbackTemplateAction(label='取消', data='NOREGISTER'),
+                ]
+            )
+        )
 
     def handle_begin_registration(self):
         self.call(im.activate_registration_session)
@@ -182,18 +200,6 @@ class Replier(object):
             text='狀態已清除！按「玩遊戲」以繼續玩遊戲計分～'
         )
 
-    def ask_for_registration(self):
-        return TemplateSendMessage(
-            alt_text='註冊之後就可以開始玩囉！',
-            template=ConfirmTemplate(
-                text='註冊之後就可以開始玩囉！',
-                actions=[
-                    MessageTemplateAction(label='開始註冊', text='開始註冊'),
-                    PostbackTemplateAction(label='取消', data='NOREGISTER'),
-                ]
-            )
-        )
-
     def handle_lookup_score(self):
         return TextSendMessage(
             text=f'你目前的分數是：{self.user.get_current_score()} 分'
@@ -215,33 +221,3 @@ class Replier(object):
         self.call(users.remove_user_im)
         return TextSendMessage(text='解除完成，再次按下或輸入「開始註冊」'
                                     '就可以再次玩遊戲喔～等你 >////<')
-
-    def handle_message(self):
-        if self.user is None:
-            if self.call(im.is_registration_session_active):
-                return self.handle_email_registration()
-            elif self.message == '開始註冊' and self.user is None:
-                return self.handle_begin_registration()
-            else:
-                return self.ask_for_registration()
-        else:
-            if self.message.startswith('答案：'):
-                return self.handle_select_answer()
-            elif self.message == '玩遊戲':
-                return self.handle_start_game()
-            elif self.message == '不玩了':
-                return self.handle_pause_game()
-            elif self.message == '查分數':
-                return self.handle_lookup_score()
-            elif self.message == '解除綁定':
-                return self.handle_unbind()
-
-    def handle_postback(self):
-        if self.call(im.is_registration_session_active):
-            return self.handle_select_identity()
-        elif self.postback == 'NOREGISTER':
-            return TextSendMessage(text='等你喔 >/////<')
-        elif self.postback == 'CONFIRM_DELETE':
-            return self.handle_confirm_unbind()
-        elif self.postback == 'CANCEL_DELETE':
-            return TextSendMessage(text='留下來了耶耶耶！')
