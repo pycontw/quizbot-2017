@@ -5,6 +5,7 @@ from pprint import pprint
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View
+from django.shortcuts import render
 
 from quizzler import im, users
 
@@ -120,6 +121,13 @@ class FacebookWebhookView(View):
                                 'error' + str(message['sender']['id']),
                             )
         return HttpResponse()
+
+
+def leaderboard(request):
+    leader_gen = users.generate_leaders()
+    return render(request, 'leaderboard.html', {
+        'leader_gen':leader_gen
+    })
 
 
 fb_webhook = FacebookWebhookView.as_view()
