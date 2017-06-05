@@ -14,6 +14,7 @@ from linebot.models import (
 from quizzler import users
 from quizzler import im
 from quizzler import registrations
+from .messages import _
 
 
 NICKNAME = 'Nickname (shown on ID card) / 暱稱 (顯示於識別證)'
@@ -181,10 +182,10 @@ class Replier(object):
         self.user.save_answer(self.current_question, is_correct)
         score = self.user.get_current_score()
         if self.current_question.answer == reply:
-            response = TextSendMessage(text=f'答對對啦～目前 {score} 分')
+            response = TextSendMessage(text=f'{_.CORRECT} 目前 {score} 分')
         else:
             response = TextSendMessage(
-                text=f'答錯錯嗚嗚嗚再接再厲！！目前 {score} 分'
+                text=f'{_.WRONG} 目前 {score} 分'
             )
         return [response, *self.ask_next_question()]
 
