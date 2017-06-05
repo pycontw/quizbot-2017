@@ -194,6 +194,11 @@ class Replier(object):
             )
         )
 
+    def handle_lookup_score(self):
+        return TextSendMessage(
+            text=f'你目前的分數是：{self.user.get_current_score()} 分'
+        )
+
     def handle_message(self):
         if self.user is None:
             if self.call(im.is_registration_session_active):
@@ -209,6 +214,8 @@ class Replier(object):
                 return self.handle_start_game()
             elif self.message == '不玩了':
                 return self.handle_pause_game()
+            elif self.message == '查分數':
+                return self.handle_lookup_score()
 
     def handle_postback(self):
         if self.call(im.is_registration_session_active):
