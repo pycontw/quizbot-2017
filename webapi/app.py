@@ -1,12 +1,10 @@
 from flask import Flask, render_template
 
 from quizzler import users
-from .line.app import configure_linebot_app
 
 
 app = Flask(__name__)
 
-configure_linebot_app(app)
 
 @app.route('/leaderboard')
 def leaderboard():
