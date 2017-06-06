@@ -1,9 +1,14 @@
-from flask import Flask, render_template
+from flask import Flask, redirect, render_template, url_for
 
 from quizzler import users
 
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def home():
+    return redirect(url_for('leaderboard'), code=307)
 
 
 @app.route('/leaderboard')
