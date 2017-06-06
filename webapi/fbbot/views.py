@@ -35,7 +35,7 @@ class FacebookWebhookView(View):
                         question = im.get_current_question(
                             im_type='fb', im_id=str(message['sender']['id'])
                         )
-                        logger.debug('問題 1 答案： {}'.format(question.answer))
+                        logger.debug('撈出比對答案： {}'.format(question.answer))
                         if str(reply['payload']) == str(question.answer).replace(u'\xa0', ' '):
                             correctness = True
                             reply = 'right_' + str(message['sender']['id'])
@@ -50,9 +50,9 @@ class FacebookWebhookView(View):
                             question=question,
                             correctness=correctness,
                         )
-                        #setting question
+                        #setting question2
                         question = user.get_next_question()
-                        logger.debug('問題 2 答案： {}'.format(question.answer))
+                        logger.debug('初始化答案： {}'.format(question.answer))
                         im.set_current_question(
                             question=question,
                             im_type='fb',
@@ -63,13 +63,14 @@ class FacebookWebhookView(View):
                             reply,
                             q=question
                         )
-                    try:
-                        post_facebook_message(
-                            message['sender']['id'],
-                            message['message']['text'],
-                        )
-                    except:
-                        continue
+                    else:
+                        try:
+                            post_facebook_message(
+                                message['sender']['id'],
+                                message['message']['text'],
+                            )
+                        except:
+                            continue
 
                 if 'postback' in message:
                     logger.debug('postback')
@@ -96,9 +97,9 @@ class FacebookWebhookView(View):
                                 im_type='fb',
                                 im_id=str(message['sender']['id']),
                             )
-                            #setting question
+                            #setting question1
                             question = user.get_next_question()
-                            logger.debug(question.answer)
+                            logger.debug('初始化答案： {}'.format(question.answer))
                             im.set_current_question(
                                 question=question,
                                 im_type='fb',

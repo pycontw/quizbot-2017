@@ -43,7 +43,7 @@ class MessageGetter:
             m = m
         
         for msg in self.msg_list:
-            if self.types in msg[0]:
+            if self.types == msg[0]:
                 m.append(msg)
         
         if m != []:

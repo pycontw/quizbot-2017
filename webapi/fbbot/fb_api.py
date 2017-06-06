@@ -288,7 +288,29 @@ def post_facebook_message(fbid, recevied_message, q=None):
     if recevied_message == "開始玩":
         return get_question(api=api, q=q)
 
-
-    #瞎聊
-    msg = MessageGetter(types='info')
-    api.send_text_message(msg.randon_choice())
+    try:
+        #瞎聊
+        users.get_user(im_type='fb', im_id=str(fbid))
+        msg = MessageGetter(types='info')
+        api.send_text_message(msg.randon_choice())
+    except users.UserDoesNotExist:
+        data = [
+            {
+                "type": "postback",
+                "title": "輸入信箱開始註冊",
+                "payload": "registeruser"
+            },
+            {
+                "type": "postback",
+                "title": "不玩了",
+                "payload": "exit"
+            },
+        ]
+        api.send_template_message(
+            title="開始註冊",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="歡迎 PyConTW 2017 大會猜謎機器人遊戲",
+            data=data,
+        )
+    return 0
+    
