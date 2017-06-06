@@ -1,11 +1,9 @@
 import json
 import logging
-from pprint import pprint
 
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.views.generic import View
-from django.shortcuts import render
+from django.views.generic import RedirectView, View
 
 from quizzler import im, users
 
@@ -87,7 +85,7 @@ class FacebookWebhookView(View):
                     elif message['postback']['payload'].split('_')[0] == '@@':
                         post_facebook_message(
                             message['sender']['id'],
-                            'start_regist' + str(message['sender']['id'] + 
+                            'start_regist' + str(message['sender']['id'] +
                             '*' + message['postback']['payload'].split('_')[1]
                             )
                         )
@@ -124,11 +122,9 @@ class FacebookWebhookView(View):
         return HttpResponse()
 
 
-def leaderboard(request):
-    leader_gen = users.generate_leaders()
-    return render(request, 'leaderboard.html', {
-        'leader_gen':leader_gen
-    })
+class LeaderboardRedirectView(RedirectView):
+    url = '/leaderboard'
 
 
 fb_webhook = FacebookWebhookView.as_view()
+leaderboard = LeaderboardRedirectView.as_view()

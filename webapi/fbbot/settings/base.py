@@ -39,12 +39,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'webapi.fbbot.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [env.ROOT_DIR_PATH.joinpath('webapi', 'templates').as_posix()],
-    },
-]
+TEMPLATES = []
 
 WSGI_APPLICATION = 'webapi.wsgi.app'
 
