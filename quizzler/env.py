@@ -10,7 +10,9 @@ __all__ = ['ROOT_DIR_PATH', 'DATABASE_INFO', 'SOURCES_URL', 'TICKETS_URL']
 
 ROOT_DIR_PATH = pathlib.Path(__file__).resolve().parent.parent
 
-dotenv.load_dotenv(str(ROOT_DIR_PATH.joinpath('.env')))
+dotenv_path = ROOT_DIR_PATH.joinpath('.env')
+if dotenv_path.exists():
+    dotenv.load_dotenv(str(dotenv_path))
 
 
 DATABASE_INFO = dj_database_url.parse(os.environ['DATABASE_URL'])
