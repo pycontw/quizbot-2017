@@ -1,12 +1,13 @@
 import importlib
 import functools
 import logging
+import logging.config
 import pathlib
 import re
 
 import click
 
-from quizzler import db
+from quizzler import db, env
 
 
 logger = logging.getLogger('migrations')
@@ -140,6 +141,7 @@ def get_current_name():
 @click.command()
 @click.option('--target', default=RUN_ALL)
 def main(target):
+    logging.config.dictConfig(env.LOGGING)
     init_system()
 
     current = get_current_name()

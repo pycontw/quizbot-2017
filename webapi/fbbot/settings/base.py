@@ -12,12 +12,7 @@ import os
 import pathlib
 
 # Init dotenv.
-from quizzler import env    # noqa
-
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)
-)))
+from quizzler import env
 
 # Development settings.
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -47,14 +42,7 @@ ROOT_URLCONF = 'webapi.fbbot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-                    os.path.join(BASE_DIR, 'templates').replace('\\', '/'),
-        ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-            ],
-        },
+        'DIRS': [env.ROOT_DIR_PATH.joinpath('webapi', 'templates').as_posix()],
     },
 ]
 
@@ -62,29 +50,8 @@ WSGI_APPLICATION = 'webapi.wsgi.app'
 
 
 # Logging.
-# This logs everything to stderr by default.
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'default': {    # Match access log style.
-            'format': '[%(asctime)s] "%(levelname)s %(name)s" %(message)s',
-            'datefmt': r'%d/%b/%Y %H:%M:%S',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 0,
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
-        },
-    },
-    'root': {
-        'level': 0,
-        'handlers': ['console'],
-    }
-}
+LOGGING = env.LOGGING
 
 
 # Custom settings.
