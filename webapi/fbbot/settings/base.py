@@ -34,12 +34,12 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 DATABASES = {}
 
 INSTALLED_APPS = [
-    'fbbot',
+    'webapi.fbbot',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'fbbot.middlewares.CommitDatabaseMiddleware',
+    'webapi.fbbot.middlewares.CommitDatabaseMiddleware',
 ]
 
 ROOT_URLCONF = 'webapi.fbbot.urls'
