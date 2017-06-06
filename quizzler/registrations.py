@@ -5,7 +5,8 @@ import io
 import os
 import zipfile
 
-from .env import ROOT_DIR_PATH
+from .env import ROOT_DIR_PATH, TICKETS_URL
+from .utils import ensure_file
 
 
 __all__ = ['get_registration', 'get_registrations']
@@ -28,7 +29,10 @@ class Registration:
 
 
 def generate_info():
-    with zipfile.ZipFile(str(ROOT_DIR_PATH.joinpath('tickets.zip'))) as zf:
+    tickets_archive_path = ROOT_DIR_PATH.joinpath('tickets.zip')
+    ensure_file(tickets_archive_path, TICKETS_URL)
+
+    with zipfile.ZipFile(str(tickets_archive_path)) as zf:
         for name in zf.namelist():
             stem, ext = os.path.splitext(name)
             if ext != '.csv':

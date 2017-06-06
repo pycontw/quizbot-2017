@@ -5,7 +5,8 @@ import zipfile
 
 import yaml
 
-from .env import ROOT_DIR_PATH
+from .env import ROOT_DIR_PATH, SOURCES_URL
+from .utils import ensure_file
 
 
 class Question:
@@ -35,7 +36,10 @@ def generate_question_in_source(name, f):
 
 
 def generate_question():
-    with zipfile.ZipFile(str(ROOT_DIR_PATH.joinpath('sources.zip'))) as zf:
+    sources_archive_path = ROOT_DIR_PATH.joinpath('sources.zip')
+    ensure_file(sources_archive_path, SOURCES_URL)
+
+    with zipfile.ZipFile(str(sources_archive_path)) as zf:
         for name in zf.namelist():
             stem, ext = os.path.splitext(os.path.basename(name))
             if ext != '.yml':
