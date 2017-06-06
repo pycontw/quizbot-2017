@@ -35,13 +35,13 @@ class FacebookWebhookView(View):
                         question = im.get_current_question(
                             im_type='fb', im_id=str(message['sender']['id'])
                         )
-                        logger.debug(question.answer)
+                        logger.debug('問題 1 答案： {}'.format(question.answer))
                         if str(reply['payload']) == str(question.answer).replace(u'\xa0', ' '):
                             correctness = True
-                            reply = 'right' + str(message['sender']['id'])
+                            reply = 'right_' + str(message['sender']['id'])
                         else:
                             correctness = False
-                            reply = 'wrong' + str(message['sender']['id'])
+                            reply = 'wrong_' + str(message['sender']['id'])
                         user = users.get_user(
                             im_type='fb',
                             im_id=str(message['sender']['id']),
@@ -52,7 +52,7 @@ class FacebookWebhookView(View):
                         )
                         #setting question
                         question = user.get_next_question()
-                        logger.debug(question.answer)
+                        logger.debug('問題 2 答案： {}'.format(question.answer))
                         im.set_current_question(
                             question=question,
                             im_type='fb',
@@ -73,10 +73,10 @@ class FacebookWebhookView(View):
 
                 if 'postback' in message:
                     logger.debug('postback')
-                    if message['postback']['payload'] == 'register_user':
-                        logger.debug('register_user')
+                    if message['postback']['payload'] == 'registeruser':
+                        logger.debug('registeruser')
                         post_facebook_message(
-                            message['sender']['id'], 'register_user'
+                            message['sender']['id'], 'registeruser'
                         )
                     elif message['postback']['payload'] == 'exit':
                         logger.debug('exit')
@@ -112,7 +112,7 @@ class FacebookWebhookView(View):
                         except users.UserDoesNotExist:
                             post_facebook_message(
                                 message['sender']['id'],
-                                "not_exist_" + str(message['sender']['id']),
+                                "notexist_" + str(message['sender']['id']),
                             )
                         except Exception as e:
                             logger.debug(" @@ 發生錯誤: {}".format(str(e)))
