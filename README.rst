@@ -20,16 +20,17 @@ PyCon Taiwan 2017 猜謎機器人
 
 註：專案根目錄即本檔案所在目錄。
 
-1. 取得題目檔 `sources.zip` 與註冊資料 `tickets.zip`，放在專案根目錄內（不需解壓縮）。
+1. 在根目錄建立 `.env` 檔案，用來指定專案環境變數。檔案格式類似一般用來 source 的 Bash 檔，使用 `python-dotenv`_ 管理，參見文檔了解可用格式。
 
-2. 在根目錄建立 `.env` 檔案，用來指定專案環境變數。檔案格式類似一般用來 source 的 Bash 檔，使用 `python-dotenv`_ 管理，參見文檔了解可用格式。
-
-3. 在 `.env` 檔案中寫入需要的環境變數：
+2. 在 `.env` 檔案中寫入需要的環境變數：
     * ``DATABASE_URL`` 指定資料庫路徑。資料庫路徑資訊由 `dj-database-url`_ 管理，參見文檔了解可用參數。
     * ``DJANGO_SECRET_KEY`` 指定 Django 需要的 secret key。
     * ``DJANGO_SETTINGS_MODULE`` 指定 Django 的設定檔路徑。本地端應設定成 ``webapi.fbbot.settings.local``。
     * ``FACEBOOK_ACCESS_TOKEN`` 與 ``FACEBOOK_VERIFY_TOKEN`` 指定 Facebook Messenger bot 需要的認證資訊。
     * ``LINE_ACCESS_TOKEN`` 與 ``LINE_CHANNEL_SECRET`` 指定 LINE bot 需要的認證資訊。
+    * ``SOURCES_URL`` 指定題目檔的下載來源。
+    * ``TICKETS_URL`` 指定註冊資料的下載來源。
+    * ``DATA_FILE_USERNAME`` 與 ``DATA_FILE_PASSWORD`` 指定下載題目檔與註冊資料時，應使用的 Basic Auth 資訊。
 
 .. _`python-dotenv`: https://github.com/theskumar/python-dotenv
 .. _`dj-database-url`: https://github.com/kennethreitz/dj-database-url
