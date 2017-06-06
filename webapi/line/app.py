@@ -1,13 +1,17 @@
 import os
+import logging
+from pprint import pformat
 from flask import request, abort
 from linebot import LineBotApi, WebhookHandler
-from linebot.exceptions import InvalidSignatureError
+from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextMessage, PostbackEvent
 
 from .replier import Replier
 
 from quizzler import db
 
+
+logger = logging.getLogger('line_webhook') # linebot namespace is taken
 
 # INIT LINE BOT
 line_bot_api = LineBotApi(os.environ.get('LINE_ACCESS_TOKEN'))
@@ -42,8 +46,16 @@ def configure_linebot_app(app):
     def line_webhook():
         signature = request.headers['X-Line-Signature']
         body = request.get_data(as_text=True)
+        logger.debug(f'Incoming message:\n{pformat(body)}')
         try:
             line_webhook_handler.handle(body, signature)
         except InvalidSignatureError:
+            logger.warning('Message with an invalid signature received')
             abort(400)
+        except LineBotApiError as e:
+            logger.error(f'{e}\nDetails:\n{pformat(e.error.details)}')
+            abort(500)
+        except Exception as e:
+            logger.error(f'Uncaught error: {e}')
+            abort(500)
         return "OK"
