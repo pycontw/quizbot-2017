@@ -8,8 +8,8 @@ psycopg2 = ">=2.7.1"
 python-dotenv = ">=0.6.4"
 Flask = ">=0.12.2"
 PyYAML = ">=3.12"
-line-bot-sdk = "==1.3.0"
-parse = "*"
+line-bot-sdk = ">=1.3.0"
+parse = ">=1.8.2"
 
 [dev-packages]
 click = ">=6.7"
