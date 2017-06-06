@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "55fd9625543d263f2f005d072078bbc01acbb61698c46f6b2db006e7d1936509"
+            "sha256": "f19373c2bb13761cc954039d7d5c90dd54bb59223d31db5425245655f9b5a654"
         },
         "requires": {},
         "sources": [
@@ -32,6 +32,9 @@
         },
         "future": {
             "version": "==0.16.0"
+        },
+        "gunicorn": {
+            "version": "==19.7.1"
         },
         "idna": {
             "version": "==2.5"
