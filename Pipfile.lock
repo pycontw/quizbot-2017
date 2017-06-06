@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7d005770fae536157a29fb4b16cce8d3caf14ef39623f9ffe685e71ce32830b9"
+            "sha256": "55fd9625543d263f2f005d072078bbc01acbb61698c46f6b2db006e7d1936509"
         },
         "requires": {},
         "sources": [
@@ -24,6 +24,9 @@
         "dj-database-url": {
             "version": "==0.4.2"
         },
+        "django": {
+            "version": "==1.11.2"
+        },
         "flask": {
             "version": "==0.12.2"
         },
@@ -45,11 +48,17 @@
         "markupsafe": {
             "version": "==1.0"
         },
+        "parse": {
+            "version": "==1.8.2"
+        },
         "psycopg2": {
             "version": "==2.7.1"
         },
         "python-dotenv": {
             "version": "==0.6.4"
+        },
+        "pytz": {
+            "version": "==2017.2"
         },
         "pyyaml": {
             "version": "==3.12"
