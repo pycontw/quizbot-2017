@@ -140,11 +140,13 @@ def get_current_name():
 @click.command()
 @click.option('--target', default=RUN_ALL)
 def main(target):
+    init_system()
+
     current = get_current_name()
     run_forward(current, target)
 
+    db.commit()     # If everything ends well, save it.
+
 
 if __name__ == '__main__':
-    init_system()
     main()
-    db.commit()     # If everything ends well, save it.
