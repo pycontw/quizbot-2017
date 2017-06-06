@@ -5,6 +5,7 @@ from pprint import pprint
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import View
+from django.shortcuts import render
 
 from quizzler import im, users
 
@@ -34,13 +35,13 @@ class FacebookWebhookView(View):
                         question = im.get_current_question(
                             im_type='fb', im_id=str(message['sender']['id'])
                         )
-                        logger.debug(question.answer)
+                        logger.debug('撈出比對答案： {}'.format(question.answer))
                         if str(reply['payload']) == str(question.answer).replace(u'\xa0', ' '):
                             correctness = True
-                            reply = 'right' + str(message['sender']['id'])
+                            reply = 'right_' + str(message['sender']['id'])
                         else:
                             correctness = False
-                            reply = 'wrong' + str(message['sender']['id'])
+                            reply = 'wrong_' + str(message['sender']['id'])
                         user = users.get_user(
                             im_type='fb',
                             im_id=str(message['sender']['id']),
@@ -49,9 +50,9 @@ class FacebookWebhookView(View):
                             question=question,
                             correctness=correctness,
                         )
-                        #setting question
+                        #setting question2
                         question = user.get_next_question()
-                        logger.debug(question.answer)
+                        logger.debug('初始化答案： {}'.format(question.answer))
                         im.set_current_question(
                             question=question,
                             im_type='fb',
@@ -62,20 +63,21 @@ class FacebookWebhookView(View):
                             reply,
                             q=question
                         )
-                    try:
-                        post_facebook_message(
-                            message['sender']['id'],
-                            message['message']['text'],
-                        )
-                    except:
-                        continue
+                    else:
+                        try:
+                            post_facebook_message(
+                                message['sender']['id'],
+                                message['message']['text'],
+                            )
+                        except:
+                            continue
 
                 if 'postback' in message:
                     logger.debug('postback')
-                    if message['postback']['payload'] == 'register_user':
-                        logger.debug('register_user')
+                    if message['postback']['payload'] == 'registeruser':
+                        logger.debug('registeruser')
                         post_facebook_message(
-                            message['sender']['id'], 'register_user'
+                            message['sender']['id'], 'registeruser'
                         )
                     elif message['postback']['payload'] == 'exit':
                         logger.debug('exit')
@@ -95,9 +97,9 @@ class FacebookWebhookView(View):
                                 im_type='fb',
                                 im_id=str(message['sender']['id']),
                             )
-                            #setting question
+                            #setting question1
                             question = user.get_next_question()
-                            logger.debug(question.answer)
+                            logger.debug('初始化答案： {}'.format(question.answer))
                             im.set_current_question(
                                 question=question,
                                 im_type='fb',
@@ -111,7 +113,7 @@ class FacebookWebhookView(View):
                         except users.UserDoesNotExist:
                             post_facebook_message(
                                 message['sender']['id'],
-                                "not_exist_" + str(message['sender']['id']),
+                                "notexist_" + str(message['sender']['id']),
                             )
                         except Exception as e:
                             logger.debug(" @@ 發生錯誤: {}".format(str(e)))
@@ -120,6 +122,13 @@ class FacebookWebhookView(View):
                                 'error' + str(message['sender']['id']),
                             )
         return HttpResponse()
+
+
+def leaderboard(request):
+    leader_gen = users.generate_leaders()
+    return render(request, 'leaderboard.html', {
+        'leader_gen':leader_gen
+    })
 
 
 fb_webhook = FacebookWebhookView.as_view()

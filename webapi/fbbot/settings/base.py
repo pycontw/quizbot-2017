@@ -15,6 +15,10 @@ import pathlib
 from quizzler import env    # noqa
 
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)
+)))
+
 # Development settings.
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
@@ -29,7 +33,9 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 DATABASES = {}
 
-INSTALLED_APPS = []
+INSTALLED_APPS = [
+    'fbbot',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -38,7 +44,19 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'webapi.fbbot.urls'
 
-TEMPLATES = []
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+                    os.path.join(BASE_DIR, 'templates').replace('\\', '/'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+            ],
+        },
+    },
+]
 
 WSGI_APPLICATION = 'webapi.wsgi.app'
 

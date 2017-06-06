@@ -1,13 +1,21 @@
 import copy
 import random
 import re
+import logging
 
 import requests
 
 from django.conf import settings
 from collections import OrderedDict
 
-from quizzler import im, users, registrations
+from quizzler import im
+from quizzler import users
+from quizzler import registrations
+
+from .messages import MessageGetter
+
+
+logger = logging.getLogger(__name__)
 
 
 FACEBOOK_API_ENDPOINT = 'https://graph.facebook.com/v2.6/me/messages'
@@ -96,9 +104,12 @@ def post_facebook_message(fbid, recevied_message, q=None):
         q = q
 
     api = MessengerAPI(fbid)
+    msg = MessageGetter(types=recevied_message.split('_')[0])
+    logger.debug('接收字串：{}, 隨機回答：{}'.format(recevied_message, msg.randon_choice()))
+
 
     if recevied_message == "rm":
-        api.send_text_message('你不要走～你不要走～但如果反悔了，重新註冊分數還在喔！')
+        api.send_text_message(msg.randon_choice())
         data = [
             {
                 "type": "postback",
@@ -120,7 +131,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
         return 0
         
     if recevied_message == "rmsure":
-        api.send_text_message('轉眼間，就刪除！')
+        api.send_text_message(msg.randon_choice())
         users.remove_user_im(im_type='fb', im_id=str(fbid))
         return 0
 
@@ -146,6 +157,10 @@ def post_facebook_message(fbid, recevied_message, q=None):
         )
         return 0
 
+    if recevied_message == 'leaderboard':
+        api.send_text_message('{}'.format(users.generate_leaders()))
+        return 0
+
     if recevied_message == "clean":
         api.send_text_message('恭喜啊，清除狀態了！')
         im.complete_registration_session(im_type='fb', im_id=str(fbid))
@@ -155,12 +170,12 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_text_message('好像有錯誤啊 QQ，聯絡一下萬能 TP 主席大大吧！')
         return 0
 
-    if recevied_message == "not_exist_" + str(fbid):
+    if recevied_message == "notexist_" + str(fbid):
         data = [
             {
                 "type": "postback",
                 "title": "輸入信箱開始註冊",
-                "payload": "register_user"
+                "payload": "registeruser"
             },
             {
                 "type": "postback",
@@ -171,22 +186,22 @@ def post_facebook_message(fbid, recevied_message, q=None):
         api.send_template_message(
             title="開始註冊",
             image_url=TITLE_IMAGE_URL,
-            subtitle="歡迎 PyConTW 2017 大會遊戲",
+            subtitle="歡迎 PyConTW 2017 大會猜謎機器人遊戲",
             data=data,
         )
         return 0
 
     if recevied_message == "exit":
         im.set_current_question(question=None, im_type='fb', im_id=str(fbid))
-        api.send_text_message("真的要離開嗎 >///< 記得要再回來啊～～～～！")
+        api.send_text_message(msg.randon_choice())
         return 0
 
-    if recevied_message == "right" + str(fbid):
-        api.send_text_message("答對了 ^^ 加油加油！")
+    if recevied_message == "right_" + str(fbid):
+        api.send_text_message(msg.randon_choice())
         return get_question(api=api, q=q)
         
-    if recevied_message == "wrong" + str(fbid):
-        api.send_text_message("答錯了 QQ 再接再厲！")
+    if recevied_message == "wrong_" + str(fbid):
+        api.send_text_message(msg.randon_choice())
         return get_question(api=api, q=q)
 
     if str(recevied_message).split('*')[0] == "start_regist" + str(fbid):
@@ -216,7 +231,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
         )
         return 0
 
-    if recevied_message == "register_user":
+    if recevied_message == "registeruser":
         im.activate_registration_session(im_type='fb', im_id=str(fbid))
         api.send_text_message("請輸入註冊在 kktix 信箱")
         return 0
@@ -243,7 +258,7 @@ def post_facebook_message(fbid, recevied_message, q=None):
                         {
                             "type": "postback",
                             "title": '#'+user_info['報名序號']+', '+user_info['聯絡人 姓名'],
-                            "payload": str('@@_'+user_info['Id'])
+                            "payload": str('@@_'+user_info.uid)
                         }
                         for user_info in user_infos
                     ]
@@ -273,5 +288,29 @@ def post_facebook_message(fbid, recevied_message, q=None):
     if recevied_message == "開始玩":
         return get_question(api=api, q=q)
 
-
-
+    try:
+        #瞎聊
+        users.get_user(im_type='fb', im_id=str(fbid))
+        msg = MessageGetter(types='info')
+        api.send_text_message(msg.randon_choice())
+    except users.UserDoesNotExist:
+        data = [
+            {
+                "type": "postback",
+                "title": "輸入信箱開始註冊",
+                "payload": "registeruser"
+            },
+            {
+                "type": "postback",
+                "title": "不玩了",
+                "payload": "exit"
+            },
+        ]
+        api.send_template_message(
+            title="開始註冊",
+            image_url=TITLE_IMAGE_URL,
+            subtitle="歡迎 PyConTW 2017 大會猜謎機器人遊戲",
+            data=data,
+        )
+    return 0
+    
