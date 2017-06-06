@@ -29,9 +29,8 @@ class Question:
 
 
 def generate_question_in_source(name, f):
-    for i, entry in enumerate(yaml.load(f)):
-        # TODO: Mayebe implement a better UID?
-        uid = f'{name}-{i}'
+    for entry in yaml.load(f):
+        uid = f'{name}-{entry["id"]}'
         yield uid, Question(uid, entry)
 
 
@@ -54,9 +53,12 @@ def get_id_question_pairs():
 
 
 @functools.lru_cache(maxsize=1)
-def get_question_map():
-    return dict(get_id_question_pairs())
+def get_question_mapping():
+    pairs = get_id_question_pairs()
+    mapping = dict(pairs)
+    assert len(mapping) == len(pairs)   # No duplicate entries.
+    return mapping
 
 
 def get_question(question_id):
-    return get_question_map()[question_id]
+    return get_question_mapping()[question_id]

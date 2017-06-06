@@ -17,3 +17,4 @@ gunicorn = ">=19.7.1"
 [dev-packages]
 click = ">=6.7"
 restview = ">=2.7.0"
+pytest = ">=3.1.1"
