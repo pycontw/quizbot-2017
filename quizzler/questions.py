@@ -5,8 +5,8 @@ import zipfile
 
 import yaml
 
-from .env import ROOT_DIR_PATH, SOURCES_URL
-from .utils import ensure_file
+from .env import ROOT_DIR_PATH, DATA_FILE_INFO
+from .utils import ensure_data_file
 
 
 class Question:
@@ -36,7 +36,7 @@ def generate_question_in_source(name, f):
 
 def generate_question():
     sources_archive_path = ROOT_DIR_PATH.joinpath('sources.zip')
-    ensure_file(sources_archive_path, SOURCES_URL)
+    ensure_data_file(sources_archive_path, DATA_FILE_INFO['SOURCES_URL'])
 
     with zipfile.ZipFile(str(sources_archive_path)) as zf:
         for name in zf.namelist():
