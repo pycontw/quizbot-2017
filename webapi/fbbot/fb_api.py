@@ -78,10 +78,9 @@ def get_question(api, q):
         choices.remove('以上皆是')
         choices.append('以上皆是')
     mapping_list = '(A)', '(B)', '(C)', '(D)', '(E)', '(F)'
-    api.send_text_message("題目: {}".format(q.message))
     question_list = [ "{}: {}".format(mapping_list[i], choices[i]) for i in range(0, len(choices))]
-    api.send_text_message('\n'.join(question_list))
-    
+    api.send_text_message("題目: {}\n\n選項:\n{}".format(q.message, '\n'.join(question_list)))
+
     data = [
         {
             "content_type": "text",
@@ -91,7 +90,7 @@ def get_question(api, q):
         for choice in choices
     ]
     api.send_text_message(
-        "答案是？",#q.message,
+        "答案是？",
         quick_replies=data,
     )
     return 0
