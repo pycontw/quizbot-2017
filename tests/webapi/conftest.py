@@ -1,8 +1,7 @@
 import pytest
 
-from webapi.app import app as flask_app
-
 
 @pytest.fixture
 def app():
+    from webapi.app import app as flask_app
     return flask_app
