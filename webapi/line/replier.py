@@ -1,4 +1,5 @@
 import random
+import logging
 from parse import parse
 from linebot.models import (
     TextSendMessage,
@@ -20,6 +21,8 @@ from .messages import _
 NICKNAME = 'Nickname (shown on ID card) / 暱稱 (顯示於識別證)'
 SERIAL = '報名序號'
 REGISTER = 'R'
+
+logger = logging.getLogger('line_webhook')
 
 
 def generate_message_for_question(question):
@@ -114,6 +117,7 @@ class Replier(object):
     def ask_next_question(self):
         question = self.user.get_next_question()
         self.call(im.set_current_question, question=question)
+        logger.info('ASK_QUESTION: %s', question.uid)
         return generate_message_for_question(question)
 
     def ask_for_registration(self):
@@ -166,6 +170,7 @@ class Replier(object):
         if kktix_id != 'CANCEL':
             self.user = self.call(users.add_user_im, serial=kktix_id)
             self.call(im.complete_registration_session)
+            logger.info('REGISTER: %s', self.user.uid)
             return [
                 TextSendMessage(text='註冊成功！開始玩吧～'),
                 *self.ask_next_question()
@@ -178,6 +183,7 @@ class Replier(object):
             return TextSendMessage(text='目前沒有進行中的題目喔～'
                                         '請輸入或按下「玩遊戲」來開始答題！')
         reply = parse('答案：{answer}', self.message)['answer']
+        logger.info('SELECT{Q: %s, A: %s}', self.current_question.uid, reply)
         is_correct = self.current_question.answer == reply
         self.user.save_answer(self.current_question, is_correct)
         score = self.user.get_current_score()
@@ -190,6 +196,7 @@ class Replier(object):
         return [response, *self.ask_next_question()]
 
     def handle_start_game(self):
+        logger.info('START_GAME: %s', self.user_id)
         if self.current_question is not None:
             return TextSendMessage(text='遊戲已經在進行中～')
         else:
@@ -197,6 +204,7 @@ class Replier(object):
 
     def handle_pause_game(self):
         self.call(im.set_current_question, question=None)
+        logger.info('CLEAR_STATE: %s', self.user_id)
         return TextSendMessage(
             text='狀態已清除！按「玩遊戲」以繼續玩遊戲計分～'
         )
