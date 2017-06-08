@@ -2,7 +2,13 @@
 PyCon Taiwan 2017 猜謎機器人
 ============================
 
-詳細規劃見 `spec/README.rst <./spec/README.rst>`_。
+Production: `https://pycontw2017-quizbot.herokuapp.com <https://pycontw2017-quizbot.herokuapp.com>`_
+
+
+專案規劃
+==========
+
+見 `spec/README.rst <./spec/README.rst>`_。
 
 
 專案設定
