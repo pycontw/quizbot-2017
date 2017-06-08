@@ -45,18 +45,28 @@ def generate_message_for_question(question):
             TextSendMessage(text=f'Q: {question.message}'),
             TemplateSendMessage(alt_text='請作答：', template=template)
         ]
+
     else:
-        template = ButtonsTemplate(
-            title='請作答：',
-            text=f'Q: {question.message}',
-            actions=[
-                MessageTemplateAction(label=choice, text=f'答案：{choice}')
-                for choice in choices if choice != ''
-            ]
-        )
-        return [
-            TemplateSendMessage(alt_text='請作答：', template=template)
-        ]
+        messages = []
+        if len(question.message) > 60 - len("Q: "):
+            messages.append(TextSendMessage(text=f'Q: {question.message}'))
+            text = None
+        else:
+            text = f'Q: {question.message}'
+
+        messages.append(TemplateSendMessage(
+            alt_text='請作答：',
+            template=ButtonsTemplate(
+                title='請作答：',
+                text=text,
+                actions=[
+                    MessageTemplateAction(label=choice, text=f'答案：{choice}')
+                    for choice in choices if choice != ''
+                ]
+            )
+        ))
+
+        return messages
 
 
 class Replier(object):
