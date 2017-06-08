@@ -189,12 +189,14 @@ def remove_user_im(*, im_type, im_id):
 Leader = collections.namedtuple('Leader', 'ranking score user registration')
 
 
-def generate_leaders():
+def generate_leaders(leader_factory=Leader):
     """Creates a generator for the leaderboard.
 
     Generates a 4-tuple containing the ranking, score, user object, and
     registration information of the leader. The result is a namedtuple.
     """
+    if leader_factory is None:
+        leader_factory = Leader
     cursor = db.get_cursor()
     cursor.execute("""
         SELECT "serial", "score"
@@ -204,7 +206,7 @@ def generate_leaders():
     for ranking, (serial, score) in enumerate(cursor, 1):
         user = User(serial=serial)
         registration = registrations.get_registration(serial=serial)
-        yield Leader(
+        yield leader_factory(
             ranking=ranking, score=score,
             user=user, registration=registration,
         )

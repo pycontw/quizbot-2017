@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d9aaca6642331b2c4adb96fdc772cbd1fb10b6a937686f2e8d6e4261d1204189"
+            "sha256": "f00e325d56eb678c21cea847f9f6ca16fe409516bb307fbe8568143b94703bb2"
         },
         "requires": {},
         "sources": [
@@ -16,7 +16,7 @@
             "version": "==2017.4.17"
         },
         "chardet": {
-            "version": "==3.0.3"
+            "version": "==3.0.4"
         },
         "click": {
             "version": "==6.7"
@@ -86,6 +86,9 @@
         "docutils": {
             "version": "==0.13.1"
         },
+        "faker": {
+            "version": "==0.7.15"
+        },
         "html5lib": {
             "version": "==0.999999999"
         },
@@ -97,6 +100,16 @@
         },
         "pytest": {
             "version": "==3.1.1"
+        },
+        "pytest-faker": {
+            "version": "==2.0.0"
+        },
+        "pytest-flask": ">=0.10.8",
+        "pytest-mock": {
+            "version": "==1.6.0"
+        },
+        "python-dateutil": {
+            "version": "==2.6.0"
         },
         "readme-renderer": {
             "version": "==17.2"
