@@ -1,0 +1,38 @@
+h1 {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 4rem;
+}
+
+th {
+    background: #606c76;
+    color: #e1e1e1;
+    border: none;
+}
+th:first-child,
+td:first-child {
+    padding-left: 8px;
+}
+table > *:last-child > tr:last-child > * {
+    border: none;
+}
+
+main.container {
+    padding-top: 4rem;
+}
+
+.portal-table {
+    max-width: 560px;
+    margin: auto;
+}
+
+.portal-table th:first-child {
+    text-align: right;
+}
+.portal-table td {
+    text-align: left;
+}
+
+.leaderboard-table th, td {
+    text-align: center;
+}

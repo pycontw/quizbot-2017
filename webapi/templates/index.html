@@ -1,0 +1,36 @@
+{% extends '_base.html' %}
+
+{% block title %}PyCon Taiwan 猜謎機器人{% endblock title %}
+
+
+
+{% macro link_row(link) %}
+<tr>
+	<th>{{ link.title }}</th>
+	<td>
+		<a href="{{ link.url }}"
+				{% if link.external %}target="_blank" rel="noopener"{% endif %}>
+			{{ link.url }}
+		</a>
+	</td>
+</tr>
+{% endmacro %}
+
+{% block main %}
+
+<h1>PyCon Taiwan 猜謎機器人</h1>
+
+<table class="portal-table">
+	<tbody>
+		{% for link in bot_links %}
+		{{ link_row(link) }}
+		{% endfor %}
+	</tbody>
+	<tfoot>
+		{% for link in misc_links %}
+		{{ link_row(link) }}
+		{% endfor %}
+	</tfoot>
+</table>
+
+{% endblock main %}

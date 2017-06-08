@@ -1,69 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends '_base.html' %}
 
-<title>排行榜</title>
+{% block title %}排行榜 – PyCon Taiwan 猜謎機器人{% endblock title %}
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
-<link rel="stylesheet" href="https://cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
-<link rel="stylesheet" href="https://cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
 
-<style>
-main.container {
-	padding-top: 4.0rem;
-}
-h1 {
-	text-align: center;
-	font-weight: bold;
-}
-th, td {
-	text-align: center;
-}
-th:first-child,
-td:first-child {
-	padding-left: 4px;
-}
-thead > tr > th {
-	background: #606c76;
-	color: #e1e1e1;
-	border: none;
-}
-tbody > tr:last-child > * {
-	border: none;
-}
-</style>
+{% block main %}
 
-</head>
+<h1>排行榜</h1>
 
-<body>
+<table class="leaderboard-table">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>分數</th>
+			<th>暱稱</th>
+			<th>序號</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for leader in leader_gen %}
+		<tr>
+			<th>{{ leader.ranking }}</th>
+			<td>{{ leader.score }}</td>
+			<td>{{ leader.registration.nickname }}</td>
+			<td>{{ leader.user.serial }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
 
-<main class="container">
-
-	<h1>排行榜</h1>
-
-	<table>
-		<thead>
-			<tr>
-				<th>#</th>
-				<th>分數</th>
-				<th>暱稱</th>
-				<th>序號</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for leader in leader_gen %}
-			<tr>
-				<th>{{ leader.ranking }}</th>
-				<td>{{ leader.score }}</td>
-				<td>{{ leader.registration.nickname }}</td>
-				<td>{{ leader.user.serial }}</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-
-</main>
-
-</body>
-
-</html>
+{% endblock main %}

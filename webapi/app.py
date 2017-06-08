@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, redirect, render_template, url_for
+from flask import Flask, jsonify, render_template, url_for
 
 from quizzler import users
 
@@ -9,8 +9,35 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def home():
-    return redirect(url_for('leaderboard'), code=307)
+def index():
+    bot_links = [
+        {
+            'title': 'LINE',
+            'url': 'https://line.me/R/ti/p/W1MINAEbHE',
+            'external': True,
+        },
+        {
+            'title': 'Facebook (web)',
+            'url': 'https://www.facebook.com/pycontwchatbot/',
+            'external': True,
+        },
+        {
+            'title': 'Facebook (app)',
+            'url': 'fb://page/299082580532144',
+            'external': True,
+        },
+    ]
+    misc_links = [
+        {
+            'title': '排行榜',
+            'url': url_for('leaderboard'),
+            'external': False,
+        },
+    ]
+    return render_template(
+        'index.html',
+        bot_links=bot_links, misc_links=misc_links,
+    )
 
 
 @app.route('/leaderboard')
