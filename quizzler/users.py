@@ -19,6 +19,7 @@ def question_id_pair_sort_key(pair, *, correct_counts, total_counts):
 
 HALL_OF_FAME = {
     '32245586',
+    '32245816',
 }
 
 
