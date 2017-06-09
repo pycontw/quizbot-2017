@@ -1,17 +1,17 @@
 h1 {
-		text-align: center;
-		font-weight: bold;
-		margin-bottom: 4rem;
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 4rem;
 }
 
 th {
-		background: #606c76;
-		color: #e1e1e1;
-		border: none;
+	background: #606c76;
+	color: #e1e1e1;
+	border: none;
 }
 th:first-child,
 td:first-child {
-		padding-left: 8px;
+	padding-left: 8px;
 }
 table > *:last-child > tr:last-child > th,
 table > *:last-child > tr:last-child > td {
@@ -42,5 +42,26 @@ table > *:last-child > tr:last-child > td {
 }
 
 .leaderboard-table th, td {
-		text-align: center;
+	text-align: center;
+}
+
+.leaderboard-table .hof-row th,
+.leaderboard-table .hof-row td {
+	background: #9b4dca;
+	color: #fff;
+	font-weight: bold;
+}
+.leaderboard-table .hof-row .hof-column {
+	padding-top: 0;
+	padding-bottom: 0;
+	color: #ffd700;
+	font-size: 175%;
+}
+.leaderboard-table .hof-row .hof-column .fa-trophy {
+	animation: blinker 2s linear infinite;
+}
+@keyframes blinker {
+	50% {
+		opacity: 0;
+	}
 }

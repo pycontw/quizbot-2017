@@ -17,6 +17,11 @@ def question_id_pair_sort_key(pair, *, correct_counts, total_counts):
     )
 
 
+HALL_OF_FAME = {
+    '32245586',
+}
+
+
 class User:
     """A user is mapped to a regstration serial on KKTIX.
 
@@ -25,6 +30,9 @@ class User:
     """
     def __init__(self, *, serial):
         self.serial = serial
+
+    def is_hall_of_famer(self):
+        return (self.serial in HALL_OF_FAME)
 
     def get_current_score(self):
         cursor = db.get_cursor()
@@ -189,7 +197,7 @@ def remove_user_im(*, im_type, im_id):
 Leader = collections.namedtuple('Leader', 'ranking score user registration')
 
 
-def generate_leaders(leader_factory=Leader):
+def generate_leaders(*, leader_factory=None):
     """Creates a generator for the leaderboard.
 
     Generates a 4-tuple containing the ranking, score, user object, and
