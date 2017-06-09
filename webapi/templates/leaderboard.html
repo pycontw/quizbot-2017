@@ -17,7 +17,7 @@
 	</thead>
 	<tbody>
 		{% for leader in leader_gen %}
-		<tr class="{% if leader.user.is_hall_of_famer() %}hof-row{% endif %}">
+		<tr>
 			<td>{{ leader.score }}</td>
 			<td>{{ leader.registration.nickname }}</td>
 			<td>{{ leader.user.serial }}</td>
