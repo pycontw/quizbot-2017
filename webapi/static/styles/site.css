@@ -44,25 +44,3 @@ table > *:last-child > tr:last-child > td {
 .leaderboard-table th, td {
 	text-align: center;
 }
-
-.leaderboard-table .hof-row th,
-.leaderboard-table .hof-row td {
-	border-bottom: none;
-	background: #9b4dca;
-	color: #fff;
-	font-weight: bold;
-}
-.leaderboard-table .hof-row .ranking-column {
-	padding-top: 0;
-	padding-bottom: 0;
-	color: #ffd700;
-	font-size: 175%;
-}
-.leaderboard-table .hof-row .ranking-column .fa-trophy {
-	animation: blinker 2s linear infinite;
-}
-@keyframes blinker {
-	50% {
-		opacity: 0;
-	}
-}

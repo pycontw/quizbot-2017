@@ -21,6 +21,5 @@ def freeze_leader(ranking, score, user, registration):
         'user': {
             'serial': user.serial,
             'nickname': registration.nickname,
-            'hall_of_famer': user.is_hall_of_famer(),
         },
     }

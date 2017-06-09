@@ -17,14 +17,6 @@ def question_id_pair_sort_key(pair, *, correct_counts, total_counts):
     )
 
 
-HALL_OF_FAME = {
-    '32245586',
-    '32245816',
-    '32416339',
-    '32247028',
-}
-
-
 class User:
     """A user is mapped to a regstration serial on KKTIX.
 
@@ -33,9 +25,6 @@ class User:
     """
     def __init__(self, *, serial):
         self.serial = serial
-
-    def is_hall_of_famer(self):
-        return (self.serial in HALL_OF_FAME)
 
     def get_current_score(self):
         cursor = db.get_cursor()
@@ -215,15 +204,9 @@ def generate_leaders(*, leader_factory=None):
         ORDER BY "score" DESC
     """)
 
-    ranking_counter = 1
-    for serial, score in cursor:
+    for ranking, (serial, score) in enumerate(cursor, 1):
         user = User(serial=serial)
         registration = registrations.get_registration(serial=serial)
-        if user.is_hall_of_famer():
-            ranking = None
-        else:
-            ranking = ranking_counter
-            ranking_counter += 1
         yield leader_factory(
             ranking=ranking, score=score,
             user=user, registration=registration,

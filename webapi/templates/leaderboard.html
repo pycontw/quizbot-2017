@@ -10,7 +10,6 @@
 <table class="leaderboard-table">
 	<thead>
 		<tr>
-			<th>#</th>
 			<th>分數</th>
 			<th>暱稱</th>
 			<th>序號</th>
@@ -19,13 +18,6 @@
 	<tbody>
 		{% for leader in leader_gen %}
 		<tr class="{% if leader.user.is_hall_of_famer() %}hof-row{% endif %}">
-			<th class="ranking-column">
-				{% if leader.user.is_hall_of_famer() %}
-				<span class="fa fa-trophy" aria-hidden="true"></span>
-				{% else %}
-				{{ leader.ranking }}
-				{% endif %}
-			</th>
 			<td>{{ leader.score }}</td>
 			<td>{{ leader.registration.nickname }}</td>
 			<td>{{ leader.user.serial }}</td>
