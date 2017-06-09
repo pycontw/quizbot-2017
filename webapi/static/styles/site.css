@@ -47,6 +47,7 @@ table > *:last-child > tr:last-child > td {
 
 .leaderboard-table .hof-row th,
 .leaderboard-table .hof-row td {
+	border-bottom: none;
 	background: #9b4dca;
 	color: #fff;
 	font-weight: bold;
