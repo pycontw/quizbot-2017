@@ -211,9 +211,16 @@ def generate_leaders(*, leader_factory=None):
         FROM "user"
         ORDER BY "score" DESC
     """)
-    for ranking, (serial, score) in enumerate(cursor, 1):
+
+    ranking_counter = 1
+    for serial, score in cursor:
         user = User(serial=serial)
         registration = registrations.get_registration(serial=serial)
+        if user.is_hall_of_famer():
+            ranking = None
+        else:
+            ranking = ranking_counter
+            ranking_counter += 1
         yield leader_factory(
             ranking=ranking, score=score,
             user=user, registration=registration,

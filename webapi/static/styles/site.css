@@ -51,13 +51,13 @@ table > *:last-child > tr:last-child > td {
 	color: #fff;
 	font-weight: bold;
 }
-.leaderboard-table .hof-row .hof-column {
+.leaderboard-table .hof-row .ranking-column {
 	padding-top: 0;
 	padding-bottom: 0;
 	color: #ffd700;
 	font-size: 175%;
 }
-.leaderboard-table .hof-row .hof-column .fa-trophy {
+.leaderboard-table .hof-row .ranking-column .fa-trophy {
 	animation: blinker 2s linear infinite;
 }
 @keyframes blinker {

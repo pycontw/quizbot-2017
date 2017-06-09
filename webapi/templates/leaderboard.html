@@ -14,21 +14,21 @@
 			<th>分數</th>
 			<th>暱稱</th>
 			<th>序號</th>
-			<th>名人堂</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for leader in leader_gen %}
 		<tr class="{% if leader.user.is_hall_of_famer() %}hof-row{% endif %}">
-			<th>{{ leader.ranking }}</th>
+			<th class="ranking-column">
+				{% if leader.user.is_hall_of_famer() %}
+				<span class="fa fa-trophy" aria-hidden="true"></span>
+				{% else %}
+				{{ leader.ranking }}
+				{% endif %}
+			</th>
 			<td>{{ leader.score }}</td>
 			<td>{{ leader.registration.nickname }}</td>
 			<td>{{ leader.user.serial }}</td>
-			<td class="{% if leader.user.is_hall_of_famer() %}hof-column{% endif %}">
-				{% if leader.user.is_hall_of_famer() %}
-				<span class="fa fa-trophy" aria-hidden="true"></span>
-				{% endif %}
-			</td>
 		</tr>
 		{% endfor %}
 	</tbody>
