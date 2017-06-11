@@ -1,0 +1,49 @@
+{% extends '_base.html' %}
+
+{% block title %}得獎名單 – PyCon Taiwan 猜謎機器人{% endblock title %}
+
+
+{% block main %}
+
+<h1>得獎名單</h1>
+
+<p>得獎名單分刷題組和一般人組。我們開發了一個演算法來偵測刷題，但如果你覺得自己被誤會，歡迎來找我們談判。如果是沒抓到的刷題就不用來嗆我們了 XD</p>
+
+<div class="row">
+	<div class="column">
+		<h2>刷題組</h2>
+		<table class="leaderboard-table">
+			<thead>
+				<tr><th>#</th><th>暱稱</th><th>報名序號</th></tr>
+			</thead>
+			<tbody>
+				{% for leader in bot_leader_gen %}
+				<tr>
+					<th>{{ loop.index0 }}</th>
+					<th>{{ leader.registration.nickname }}</th>
+					<th>{{ leader.registration.ticket_serial }}</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<div class="column">
+		<h2>一般人組</h2>
+		<table class="leaderboard-table">
+			<thead>
+				<tr><th>#</th><th>暱稱</th><th>報名序號</th></tr>
+			</thead>
+			<tbody>
+				{% for leader in human_leader_gen %}
+				<tr>
+					<th>{{ loop.index0 }}</th>
+					<th>{{ leader.registration.nickname }}</th>
+					<th>{{ leader.registration.ticket_serial }}</th>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% endblock main %}

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f00e325d56eb678c21cea847f9f6ca16fe409516bb307fbe8568143b94703bb2"
+            "sha256": "a454fed812fdd8a8c754fc5062528f1863a3ceb15abecba4b1c7f22aae5c0666"
         },
         "requires": {},
         "sources": [
@@ -77,20 +77,47 @@
         }
     },
     "develop": {
+        "appnope": {
+            "version": "==0.1.0"
+        },
         "bleach": {
             "version": "==2.0.0"
         },
         "click": {
             "version": "==6.7"
         },
+        "decorator": {
+            "version": "==4.0.11"
+        },
         "docutils": {
             "version": "==0.13.1"
         },
         "faker": {
-            "version": "==0.7.15"
+            "version": "==0.7.16"
         },
         "html5lib": {
             "version": "==0.999999999"
+        },
+        "ipython": {
+            "version": "==6.1.0"
+        },
+        "ipython-genutils": {
+            "version": "==0.2.0"
+        },
+        "jedi": {
+            "version": "==0.10.2"
+        },
+        "pexpect": {
+            "version": "==4.2.1"
+        },
+        "pickleshare": {
+            "version": "==0.7.4"
+        },
+        "prompt-toolkit": {
+            "version": "==1.0.14"
+        },
+        "ptyprocess": {
+            "version": "==0.5.1"
         },
         "py": {
             "version": "==1.4.34"
@@ -99,7 +126,7 @@
             "version": "==2.2.0"
         },
         "pytest": {
-            "version": "==3.1.1"
+            "version": "==3.1.2"
         },
         "pytest-faker": {
             "version": "==2.0.0"
@@ -120,8 +147,17 @@
         "setuptools": {
             "version": "==36.0.1"
         },
+        "simplegeneric": {
+            "version": "==0.8.1"
+        },
         "six": {
             "version": "==1.10.0"
+        },
+        "traitlets": {
+            "version": "==4.3.2"
+        },
+        "wcwidth": {
+            "version": "==0.1.7"
         },
         "webencodings": {
             "version": "==0.5.1"

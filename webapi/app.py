@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, render_template, url_for
 
-from quizzler import users
+from quizzler import botdetection, users
 
 from .utils import freeze_leader, request_wants_json
 
@@ -48,4 +48,18 @@ def leaderboard():
     leader_gen = users.generate_leaders()
     return render_template(
         'leaderboard.html', leader_gen=leader_gen,
+    )
+
+
+@app.route('/awards')
+def awards():
+    bot_serials = set(botdetection.generate_bot_serials())
+    bot_leader_gen = filter(
+        lambda d: d.serial in bot_serials,
+        users.generate_leaders(),
+    )
+    human_leader_gen = users.generate_leaders()
+    return render_template(
+        'awards.html',
+        bot_leader_gen=bot_leader_gen, human_leader_gen=human_leader_gen,
     )

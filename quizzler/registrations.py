@@ -19,6 +19,7 @@ class Registration:
         self.row = row
         self.uid = row['Id']
         self.email = row['聯絡人 Email']
+        self.ticket_serial = row['報名序號']
         self.nickname = row['Nickname (shown on ID card) / 暱稱 (顯示於識別證)']
 
     def __repr__(self):
