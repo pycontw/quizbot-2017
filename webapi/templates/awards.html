@@ -19,9 +19,9 @@
 			<tbody>
 				{% for leader in bot_leader_gen %}
 				<tr>
-					<th>{{ loop.index0 }}</th>
-					<th>{{ leader.registration.nickname }}</th>
-					<th>{{ leader.registration.ticket_serial }}</th>
+					<th>{{ loop.index }}</th>
+					<td>{{ leader.registration.nickname }}</td>
+					<td>{{ leader.registration.ticket_serial }}</td>
 				</tr>
 				{% endfor %}
 			</tbody>
@@ -36,9 +36,9 @@
 			<tbody>
 				{% for leader in human_leader_gen %}
 				<tr>
-					<th>{{ loop.index0 }}</th>
-					<th>{{ leader.registration.nickname }}</th>
-					<th>{{ leader.registration.ticket_serial }}</th>
+					<th>{{ loop.index }}</th>
+					<td>{{ leader.registration.nickname }}</td>
+					<td>{{ leader.registration.ticket_serial }}</td>
 				</tr>
 				{% endfor %}
 			</tbody>
