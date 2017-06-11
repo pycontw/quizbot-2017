@@ -59,7 +59,7 @@ def awards():
         users.generate_leaders(),
     )
     human_leader_gen = filter(
-        lambda d: d.score > 0,
+        lambda d: d.user.serial not in bot_serials and d.score > 0,
         users.generate_leaders(),
     )
     return render_template(
