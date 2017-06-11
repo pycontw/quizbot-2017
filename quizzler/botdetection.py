@@ -28,7 +28,7 @@ def generate_bot_serials():
         GROUP BY "user"."serial"
         HAVING COUNT(*) > %(allowed_violation_count)s
         """,
-        {'bot_like_threshold': 50, 'allowed_violation_count': 3},
+        {'bot_like_threshold': 150, 'allowed_violation_count': 3},
     )
     for serial, in cursor:
         yield serial
