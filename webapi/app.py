@@ -55,10 +55,13 @@ def leaderboard():
 def awards():
     bot_serials = set(botdetection.generate_bot_serials())
     bot_leader_gen = filter(
-        lambda d: d.serial in bot_serials,
+        lambda d: d.user.serial in bot_serials,
         users.generate_leaders(),
     )
-    human_leader_gen = users.generate_leaders()
+    human_leader_gen = filter(
+        lambda d: d.score > 0,
+        users.generate_leaders(),
+    )
     return render_template(
         'awards.html',
         bot_leader_gen=bot_leader_gen, human_leader_gen=human_leader_gen,
